@@ -7,28 +7,30 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "notifications")
+@Table(name = "application_notes")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Notification {
+public class ApplicationNote {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "notification_id")
+    @Column(name = "note_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "application_id", nullable = false)
     @ToString.Exclude
-    private User user;
+    private Application application;
 
-    @Column(nullable = false, length = 1000)
-    private String message;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "employer_id", nullable = false)
+    @ToString.Exclude
+    private Employer employer;
 
-    @Column(name = "is_read", nullable = false)
-    private Boolean isRead = false;
+    @Column(name = "note_text", nullable = false, length = 2000)
+    private String noteText;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
