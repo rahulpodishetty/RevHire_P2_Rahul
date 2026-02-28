@@ -1,9 +1,10 @@
 package com.rev.app.repository;
 
+import com.rev.app.entity.Company;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import com.rev.app.entity.Employer;
 
 @Repository
-public interface EmployerRepository extends JpaRepository<Employer, Long> {
+public interface ICompanyRepository extends JpaRepository<Company, Long> {
 }
+
