@@ -4,16 +4,16 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDto {
+public class ApplicationNoteDto {
     private Long id;
-    private String email;
-    private String role;
+    private Long applicationId;
+    private Long employerId;
+    private String noteText;
     private LocalDateTime createdAt;
 }

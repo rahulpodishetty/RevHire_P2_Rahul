@@ -5,17 +5,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class JobSeekerDto {
+public class CompanyDto {
     private Long id;
-    private Long userId; // For reference
     private String name;
-    private String phone;
-    private Integer experienceYears;
-    private Integer profileCompletion;
+    private String industry;
+    private String size; // 'company_size' in entity mapped to 'size' here
+    private String description;
+    private String website;
+    private String location;
 }

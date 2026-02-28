@@ -9,11 +9,23 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoginDto {
+public class RegisterEmployerDto {
     @NotBlank(message = "Email is required")
     @Email(message = "Invalid email format")
     private String email;
 
     @NotBlank(message = "Password is required")
     private String password;
+
+    @NotBlank(message = "Designation is required")
+    private String designation;
+
+    @NotBlank(message = "Company Name is required")
+    private String companyName;
+
+    private String industry;
+    private String companySize;
+    private String description;
+    private String website;
+    private String location;
 }
