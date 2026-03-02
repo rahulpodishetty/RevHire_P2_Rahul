@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: header('Search Jobs - RevHire')}"></head>
+
+<body>
+    <div th:replace="~{fragments/layout :: sidebar('search', ${role})}"></div>
+    <div th:replace="~{fragments/layout :: navbar}"></div>
+
+    <main class="main-content">
+        <div class="row mb-5 align-items-center">
+            <div class="col-lg-6">
+                <h2 class="fw-bold mb-1">Discover Opportunities</h2>
+                <p class="text-muted mb-0">Find the perfect role that matches your skills and ambitions.</p>
+            </div>
+            <div class="col-lg-6 text-lg-end mt-3 mt-lg-0">
+                <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-semibold">
+                    <i class="fas fa-briefcase me-1"></i> <span th:text="${totalJobs}">0</span> Active Jobs
+                </span>
+            </div>
+        </div>
+
+        <div th:if="${param.applied}"
+            class="alert alert-success border-0 shadow-sm rounded-4 mb-4 p-3 animate__animated animate__fadeIn">
+            <div class="d-flex align-items-center gap-3">
+                <i class="fas fa-check-circle fs-4"></i>
+                <div>
+                    <h6 class="fw-bold mb-0">Success!</h6>
+                    <p class="small mb-0 opacity-75">Your application has been submitted successfully.</p>
+                </div>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
+
+        <div th:if="${param.saved}"
+            class="alert alert-info border-0 shadow-sm rounded-4 mb-4 p-3 animate__animated animate__fadeIn">
+            <div class="d-flex align-items-center gap-3">
+                <i class="fas fa-heart fs-4"></i>
+                <div>
+                    <h6 class="fw-bold mb-0">Job Saved!</h6>
+                    <p class="small mb-0 opacity-75">This job has been added to your saved list for later.</p>
+                </div>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
+
+        <!-- Search & Filter Bar -->
+        <form action="/seeker/jobs" method="get">
+            <div class="card border-0 shadow-sm rounded-4 mb-5">
+                <div class="card-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-5">
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent border-end-0 border-start-0 ps-3">
+                                    <i class="fas fa-search text-muted"></i>
+                                </span>
+                                <input type="text" name="title" th:value="${title}"
+                                    class="form-control border-start-0 ps-0"
+                                    placeholder="Job title, keywords, or company">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent border-end-0 border-start-0 ps-3">
+                                    <i class="fas fa-location-dot text-muted"></i>
+                                </span>
+                                <input type="text" name="location" th:value="${location}"
+                                    class="form-control border-start-0 ps-0" placeholder="City or Remote">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <button type="submit" class="btn btn-primary w-100 rounded-3 py-2 fw-semibold">
+                                Find Jobs
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Sidebar Filters -->
+                <div class="col-lg-3 d-none d-lg-block">
+                    <div class="card border-0 shadow-sm rounded-4 position-sticky" style="top: 100px;">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-4">Filters</h5>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold small text-uppercase text-muted">Job Type</label>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="jobType" id="ft"
+                                        value="FULL_TIME" th:checked="${jobType == 'FULL_TIME'}">
+                                    <label class="form-check-label" for="ft">Full-time</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="jobType" id="pt"
+                                        value="PART_TIME" th:checked="${jobType == 'PART_TIME'}">
+                                    <label class="form-check-label" for="pt">Part-time</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="jobType" id="remote"
+                                        value="REMOTE" th:checked="${jobType == 'REMOTE'}">
+                                    <label class="form-check-label" for="remote">Remote</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="jobType" id="anyType" value=""
+                                        th:checked="${jobType == null or jobType == ''}">
+                                    <label class="form-check-label" for="anyType">Any Type</label>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold small text-uppercase text-muted">Company</label>
+                                <input type="text" name="company" th:value="${company}"
+                                    class="form-control border-0 bg-light rounded-3" placeholder="Company name">
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold small text-uppercase text-muted">Salary
+                                    Range</label>
+                                <input type="text" name="salary" th:value="${salary}"
+                                    class="form-control border-0 bg-light rounded-3" placeholder="e.g. $100k+">
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold small text-uppercase text-muted">Experience
+                                    Level (Max)</label>
+                                <select name="experience" class="form-select border-0 bg-light rounded-3">
+                                    <option value="">Any Experience</option>
+                                    <option value="0" th:selected="${experience == 0}">Entry Level (0+)</option>
+                                    <option value="2" th:selected="${experience == 2}">Junior (2+)</option>
+                                    <option value="5" th:selected="${experience == 5}">Mid-Senior (5+)</option>
+                                    <option value="10" th:selected="${experience == 10}">Senior (10+)</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold small text-uppercase text-muted">Posted
+                                    After</label>
+                                <input type="date" name="postedDate" th:value="${postedDate}"
+                                    class="form-control border-0 bg-light rounded-3">
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-sm w-100 rounded-pill mb-2">Apply
+                                Filters</button>
+                            <a href="/seeker/jobs"
+                                class="btn btn-link btn-sm w-100 text-muted text-decoration-none">Clear All</a>
+                        </div>
+                    </div>
+                </div>
+        </form>
+
+        <!-- Job Listings -->
+        <div class="col-lg-9">
+            <!-- Dynamic Job Cards -->
+            <div th:each="job : ${jobs}" class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden job-card-hover">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-start gap-4">
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-4 d-flex align-items-center justify-content-center"
+                            style="width: 64px; height: 64px;">
+                            <i class="fas fa-building text-primary fs-3"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between">
+                                <h5 class="fw-bold mb-1" th:text="${job.title}">Senior Software Engineer</h5>
+
+                                <form th:action="@{'/seeker/jobs/' + ${job.id} + '/save'}" method="post">
+                                    <button type="submit" class="btn btn-light btn-sm rounded-circle shadow-sm">
+                                        <i class="far fa-heart text-danger"></i>
+                                    </button>
+                                </form>
+                            </div>
+                            <p class="text-primary mb-2 fw-semibold"
+                                th:text="${job.company != null ? job.company.name : 'Company'}">TechFlow Solutions
+                            </p>
+                            <div class="d-flex flex-wrap gap-3 small text-muted mb-4">
+                                <span><i class="fas fa-map-marker-alt me-2"></i> <span th:text="${job.location}">San
+                                        Francisco, CA</span></span>
+                                <span><i class="fas fa-clock me-2"></i> <span
+                                        th:text="${job.jobType}">Full-time</span></span>
+                                <span><i class="fas fa-dollar-sign me-2"></i> <span th:text="${job.salaryRange}">$140k -
+                                        $180k</span></span>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between border-top pt-4">
+                                <div class="d-flex gap-2">
+                                    <span
+                                        th:each="skill : ${#strings.arraySplit(job.skillsRequired != null ? job.skillsRequired : '', ',')}"
+                                        class="badge bg-light text-muted fw-normal px-2"
+                                        th:text="${#strings.trim(skill)}">Skill</span>
+                                </div>
+                                <a th:href="@{'/seeker/jobs/' + ${job.id}}"
+                                    class="btn btn-primary px-4 py-2 rounded-3 fw-semibold shadow-sm">View
+                                    Details</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div th:if="${#lists.isEmpty(jobs)}" class="text-center py-5">
+                <div class="mb-4">
+                    <i class="fas fa-search text-muted opacity-25" style="font-size: 4rem;"></i>
+                </div>
+                <h4 class="fw-bold">No jobs found</h4>
+                <p class="text-muted">Try adjusting your search or filters to find what you're looking for.</p>
+            </div>
+
+            <nav class="mt-5">
+                <ul class="pagination justify-content-center border-0" th:if="${totalPages > 1}">
+                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                        <a class="page-link rounded-circle me-2 border-0 bg-light"
+                            th:href="@{/seeker/jobs(page=${currentPage - 1}, title=${title}, location=${location})}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                        th:classappend="${i == currentPage} ? 'active'">
+                        <a class="page-link rounded-circle me-2 border-0 shadow-sm"
+                            th:href="@{/seeker/jobs(page=${i}, title=${title}, location=${location})}"
+                            th:text="${i + 1}">1</a>
+                    </li>
+                    <li class="page-item" th:classappend="${currentPage + 1 == totalPages} ? 'disabled'">
+                        <a class="page-link rounded-circle border-0 bg-light"
+                            th:href="@{/seeker/jobs(page=${currentPage + 1}, title=${title}, location=${location})}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head
+    th:replace="~{fragments/layout :: header(${resume.id == null ? 'Create Resume - RevHire' : 'Edit Resume - RevHire'})}">
+</head>
+
+<body>
+    <div th:replace="~{fragments/layout :: sidebar('resumes', ${role})}"></div>
+    <div th:replace="~{fragments/layout :: navbar}"></div>
+
+    <main class="main-content">
+        <div class="row mb-5 justify-content-center">
+            <div class="col-lg-8">
+                <div class="d-flex align-items-center mb-4">
+                    <a href="/seeker/resumes" class="btn btn-light rounded-circle me-3 shadow-sm">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                    <div>
+                        <h2 class="fw-bold mb-0"
+                            th:text="${resume.id == null ? 'Create Structured Resume' : 'Edit Structured Resume'}">
+                            Create Resume</h2>
+                        <p class="text-muted mb-0">Fill in your professional details to generate a structured resume.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden animate__animated animate__fadeInUp">
+                    <div class="card-header bg-primary text-white py-4 px-5 border-0">
+                        <h5 class="mb-0 fw-bold"><i class="fas fa-file-alt me-2"></i> Resume Details</h5>
+                    </div>
+                    <div class="card-body p-5 bg-white">
+                        <form th:action="@{/seeker/resumes/save}" th:object="${resume}" method="post">
+                            <input type="hidden" th:field="*{id}">
+
+                            <div class="row g-4">
+                                <!-- Objective -->
+                                <div class="col-12">
+                                    <label class="form-label fw-bold text-dark mb-2">Professional Objective</label>
+                                    <textarea th:field="*{objective}"
+                                        class="form-control rounded-3 border-light-subtle shadow-sm" rows="3"
+                                        placeholder="State your career goals and what you bring to the table..."
+                                        required></textarea>
+                                </div>
+
+                                <!-- Education -->
+                                <div class="col-12">
+                                    <label class="form-label fw-bold text-dark mb-2">Education</label>
+                                    <textarea th:field="*{education}"
+                                        class="form-control rounded-3 border-light-subtle shadow-sm" rows="4"
+                                        placeholder="Degree, Institution, Year, GPA..." required></textarea>
+                                    <div class="form-text small opacity-75">List your highest degrees first.</div>
+                                </div>
+
+                                <!-- Experience -->
+                                <div class="col-12">
+                                    <label class="form-label fw-bold text-dark mb-2">Work Experience</label>
+                                    <textarea th:field="*{experience}"
+                                        class="form-control rounded-3 border-light-subtle shadow-sm" rows="5"
+                                        placeholder="Job Title, Company, Date Range, Key Responsibilities..."
+                                        required></textarea>
+                                    <div class="form-text small opacity-75">Highlight your impact and achievements.
+                                    </div>
+                                </div>
+
+                                <!-- Skills -->
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-dark mb-2">Technical Skills</label>
+                                    <textarea th:field="*{skills}"
+                                        class="form-control rounded-3 border-light-subtle shadow-sm" rows="4"
+                                        placeholder="Java, Spring Boot, SQL, AWS, React..." required></textarea>
+                                </div>
+
+                                <!-- Projects -->
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-dark mb-2">Key Projects</label>
+                                    <textarea th:field="*{projects}"
+                                        class="form-control rounded-3 border-light-subtle shadow-sm" rows="4"
+                                        placeholder="Project Name, Tech Stack, Brief Description..."></textarea>
+                                </div>
+
+                                <!-- Certifications -->
+                                <div class="col-12">
+                                    <label class="form-label fw-bold text-dark mb-2">Certifications & Awards</label>
+                                    <textarea th:field="*{certifications}"
+                                        class="form-control rounded-3 border-light-subtle shadow-sm" rows="3"
+                                        placeholder="AWS Solution Architect, PMP, Employee of the Month..."></textarea>
+                                </div>
+
+                                <div class="col-12 mt-5 text-end">
+                                    <button type="submit"
+                                        class="btn btn-primary px-5 py-2 rounded-pill fw-bold shadow-sm">
+                                        <i class="fas fa-save me-2"></i> Save Resume
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

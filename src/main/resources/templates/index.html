@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RevHire - Your Future Starts Here</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+            padding: 120px 0;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 600px;
+            height: 600px;
+            background: rgba(79, 70, 229, 0.2);
+            border-radius: 50%;
+            filter: blur(100px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            border: none;
+            padding: 15px 35px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .card {
+            border: none;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-transparent position-absolute w-100 py-4">
+        <div class="container">
+            <a class="navbar-brand fw-bold fs-3" href="#">RevHire</a>
+            <div class="ms-auto">
+                <a href="/login" class="btn btn-outline-light border-0 fw-bold me-3">Sign In</a>
+                <a href="/register/seeker" class="btn btn-light rounded-pill px-4 fw-bold text-primary">Get Started</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="hero text-center">
+        <div class="container">
+            <h1 class="display-2 fw-bold mb-4">Find your <span style="color: #818cf8;">Dream Career</span> here.</h1>
+            <p class="lead mb-5 opacity-75 mx-auto" style="max-width: 700px;">
+                Connecting top talent with the world's most innovative companies.
+                Whether you're hiring or looking to be hired, RevHire is your platform for success.
+            </p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="/register/seeker" class="btn btn-primary btn-lg">I'm a Job Seeker</a>
+                <a href="/register/employer" class="btn btn-outline-light btn-lg border-2"
+                    style="border-radius: 12px; padding: 15px 35px;">I'm an Employer</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-5 mt-5">
+        <div class="row g-4 text-center">
+            <div class="col-md-4">
+                <div class="card p-5 h-100 border-0">
+                    <div class="bg-primary bg-opacity-10 p-4 rounded-circle d-inline-block mx-auto mb-4">
+                        <i class="fas fa-search-dollar text-primary fs-2"></i>
+                    </div>
+                    <h4 class="fw-bold">Smart Search</h4>
+                    <p class="text-muted">Our AI-driven matching finds the jobs that actually fit your profile.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-5 h-100 border-0">
+                    <div class="bg-success bg-opacity-10 p-4 rounded-circle d-inline-block mx-auto mb-4">
+                        <i class="fas fa-building text-success fs-2"></i>
+                    </div>
+                    <h4 class="fw-bold">Top Companies</h4>
+                    <p class="text-muted">Direct access to Fortune 500 companies and growing tech startups.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-5 h-100 border-0">
+                    <div class="bg-warning bg-opacity-10 p-4 rounded-circle d-inline-block mx-auto mb-4">
+                        <i class="fas fa-rocket text-warning fs-2"></i>
+                    </div>
+                    <h4 class="fw-bold">Fast Growth</h4>
+                    <p class="text-muted">Accelerate your career path with mentorship and high-impact roles.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="py-5 text-center text-muted border-top mt-5">
+        <p>&copy; 2026 RevHire. Empowering Careers Globally.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

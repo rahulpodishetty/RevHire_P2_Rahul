@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join as Employer - RevHire</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+
+        .reg-container {
+            background: white;
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        .info-side {
+            background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+            color: white;
+            padding: 60px;
+        }
+
+        .form-side {
+            padding: 40px 60px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .form-control {
+            border-radius: 12px;
+            padding: 12px 20px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            border: none;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container py-5">
+        <div class="reg-container d-flex flex-column flex-lg-row">
+            <div class="info-side col-lg-4 d-flex flex-column justify-content-center">
+                <h1 class="fw-bold mb-4">Scale your team.</h1>
+                <p class="lead opacity-80 mb-5">Post jobs and find the top talent you need to grow your organization.
+                    Join the community of elite employers.</p>
+                <div class="d-flex align-items-center mb-4">
+                    <div class="bg-white bg-opacity-10 p-3 rounded-circle me-3"><i class="fas fa-rocket"></i></div>
+                    <span>Fast Candidate Shortlisting</span>
+                </div>
+                <div class="d-flex align-items-center mb-4">
+                    <div class="bg-white bg-opacity-10 p-3 rounded-circle me-3"><i class="fas fa-chart-line"></i></div>
+                    <span>Analytics & Hiring Insights</span>
+                </div>
+                <div class="d-flex align-items-center">
+                    <div class="bg-white bg-opacity-10 p-3 rounded-circle me-3"><i class="fas fa-shield-alt"></i></div>
+                    <span>Company Verified Profiles</span>
+                </div>
+            </div>
+            <div class="form-side col-lg-8">
+                <div class="mb-4 d-flex justify-content-between align-items-center">
+                    <h2 class="fw-bold mb-0">Join as Employer</h2>
+                    <a href="/" class="text-muted text-decoration-none small"><i class="fas fa-arrow-left me-1"></i>
+                        Back</a>
+                </div>
+
+                <div id="errorMessage" class="alert alert-danger border-0 rounded-4 mb-4 d-none"></div>
+
+                <form id="registerForm">
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label fw-semibold">Company Name</label>
+                            <input type="text" id="companyName" name="companyName" class="form-control"
+                                placeholder="e.g. Acme Innovations" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Industry</label>
+                            <input type="text" id="industry" name="industry" class="form-control"
+                                placeholder="e.g. Technology" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Company Size</label>
+                            <input type="text" id="companySize" name="companySize" class="form-control"
+                                placeholder="e.g. 50-200" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Company Website</label>
+                            <input type="url" id="website" name="website" class="form-control"
+                                placeholder="https://www.company.com">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Headquarters / Location</label>
+                            <input type="text" id="location" name="location" class="form-control"
+                                placeholder="e.g. Hyderabad, India" required>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label fw-semibold">Company Description</label>
+                            <textarea id="description" name="description" class="form-control" rows="3"
+                                placeholder="Tell us about your organization..."></textarea>
+                        </div>
+                    </div>
+                    <hr class="my-4 opacity-10">
+                    <h5 class="fw-bold mb-3">Account Details</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Your Designation</label>
+                            <input type="text" id="designation" name="designation" class="form-control"
+                                placeholder="e.g. Talent Acquisition" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Contact Email</label>
+                            <input type="email" id="email" name="email" class="form-control"
+                                placeholder="name@company.com" required>
+                        </div>
+                        <div class="col-md-12 mb-4">
+                            <label class="form-label fw-semibold">Password</label>
+                            <input type="password" id="password" name="password" class="form-control"
+                                placeholder="Minimum 8 characters" required>
+                        </div>
+                    </div>
+                    <button type="submit" id="submitBtn" class="btn btn-primary w-100 mb-4 shadow-sm">Register
+                        Organization</button>
+                </form>
+
+                <script>
+                    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+                        e.preventDefault();
+                        const submitBtn = document.getElementById('submitBtn');
+                        const originalText = submitBtn.innerText;
+                        submitBtn.innerText = 'Creating account...';
+                        submitBtn.disabled = true;
+
+                        const formData = {
+                            companyName: document.getElementById('companyName').value,
+                            industry: document.getElementById('industry').value,
+                            companySize: document.getElementById('companySize').value,
+                            location: document.getElementById('location').value,
+                            website: document.getElementById('website').value,
+                            description: document.getElementById('description').value,
+                            designation: document.getElementById('designation').value,
+                            email: document.getElementById('email').value,
+                            password: document.getElementById('password').value
+                        };
+
+                        try {
+                            const response = await fetch('/api/auth/register/employer', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(formData)
+                            });
+
+                            if (response.ok) {
+                                window.location.href = '/login?registered=true';
+                            } else {
+                                const data = await response.json();
+                                const errorDiv = document.getElementById('errorMessage');
+                                errorDiv.innerText = data.message || 'Registration failed. Please try again.';
+                                errorDiv.classList.remove('d-none');
+                                submitBtn.innerText = originalText;
+                                submitBtn.disabled = false;
+                            }
+                        } catch (error) {
+                            console.error('Registration error:', error);
+                            alert('An error occurred. Please try again later.');
+                            submitBtn.innerText = originalText;
+                            submitBtn.disabled = false;
+                        }
+                    });
+                </script>
+
+                <p class="text-center text-muted small mb-0">Already have an account? <a href="/login"
+                        class="text-primary fw-bold text-decoration-none">Sign In</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

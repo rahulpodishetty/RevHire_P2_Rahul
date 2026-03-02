@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: header('Company Portfolio - RevHire')}"></head>
+
+<body>
+    <div th:replace="~{fragments/layout :: sidebar('company', ${role})}"></div>
+    <div th:replace="~{fragments/layout :: navbar}"></div>
+
+    <main class="main-content">
+        <div class="row mb-5 align-items-center">
+            <div class="col-lg-6">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-2 small text-muted">
+                        <li class="breadcrumb-item"><a href="/employer/dashboard"
+                                class="text-decoration-none">Dashboard</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Company Portfolio</li>
+                    </ol>
+                </nav>
+                <h2 class="fw-bold mb-1">Company Portfolio</h2>
+                <p class="text-muted mb-0">Update your organization's information to attract top talent.</p>
+            </div>
+            <div class="col-lg-6 text-lg-end mt-3 mt-lg-0">
+                <a th:href="${profile.website}" target="_blank"
+                    class="btn btn-light rounded-pill px-4 py-2 fw-semibold shadow-sm border-0"
+                    th:if="${profile.website != null}">
+                    <i class="fas fa-external-link-alt me-1"></i> Visit Website
+                </a>
+            </div>
+        </div>
+
+        <div th:if="${param.updated}" class="alert alert-success border-0 rounded-4 mb-4 shadow-sm">
+            <i class="fas fa-check-circle me-2"></i> Company portfolio updated successfully!
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
+                    <div class="card-body p-5">
+                        <form class="row g-4" th:action="@{/employer/company/update}" th:object="${profile}"
+                            method="post">
+                            <input type="hidden" th:field="*{id}" />
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold small text-uppercase text-muted">Organization
+                                    Name</label>
+                                <input type="text" th:field="*{name}"
+                                    class="form-control bg-light border-0 py-3 rounded-3 fs-5 fw-bold" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-uppercase text-muted">Industry Type</label>
+                                <input type="text" th:field="*{industry}"
+                                    class="form-control bg-light border-0 py-3 rounded-3" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-uppercase text-muted">Company Size</label>
+                                <input type="text" th:field="*{size}"
+                                    class="form-control bg-light border-0 py-3 rounded-3" required>
+                            </div>
+
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold small text-uppercase text-muted">Headquarters
+                                    Location</label>
+                                <input type="text" th:field="*{location}"
+                                    class="form-control bg-light border-0 py-3 rounded-3" required>
+                            </div>
+
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold small text-uppercase text-muted">Website URL</label>
+                                <input type="url" th:field="*{website}"
+                                    class="form-control bg-light border-0 py-3 rounded-3"
+                                    placeholder="https://example.com">
+                            </div>
+
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold small text-uppercase text-muted">About
+                                    Organization</label>
+                                <textarea th:field="*{description}"
+                                    class="form-control bg-light border-0 py-3 rounded-3" rows="6"
+                                    placeholder="A brief description of your organization and core values..."></textarea>
+                            </div>
+
+                            <div class="col-md-12 text-end pt-4">
+                                <button type="submit"
+                                    class="btn btn-primary rounded-pill px-5 py-3 fw-bold shadow-sm">Update Company
+                                    Portfolio</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 text-center p-4 mb-4">
+                    <div class="card-body">
+                        <div class="position-relative d-inline-block mb-4">
+                            <div class="bg-light p-4 rounded-circle border border-2 border-white shadow-sm"
+                                style="width: 120px; height: 120px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-building text-primary fs-1"></i>
+                            </div>
+                        </div>
+                        <h5 class="fw-bold mb-1" th:text="${profile.name}">TechFlow Solutions</h5>
+                        <p class="small text-muted mb-4" th:text="${profile.industry}">Software Development</p>
+                        <div class="d-flex justify-content-center gap-2 mb-4">
+                            <a href="#" class="btn btn-light btn-sm rounded-pill px-3 fw-bold border-0 shadow-sm"><i
+                                    class="fab fa-linkedin-in me-1"></i> LinkedIn</a>
+                            <a href="#" class="btn btn-light btn-sm rounded-pill px-3 fw-bold border-0 shadow-sm"><i
+                                    class="fab fa-twitter me-1"></i> Twitter</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
