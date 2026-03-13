@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: header('Manage Applicants - RevHire')}"></head>
+
+<body>
+    <div th:replace="~{fragments/layout :: sidebar('applicants', ${role})}"></div>
+    <div th:replace="~{fragments/layout :: navbar}"></div>
+
+    <main class="main-content">
+        <div class="row mb-5 align-items-center">
+            <div class="col-lg-6">
+                <h2 class="fw-bold mb-1">Manage Applicants</h2>
+                <p class="text-muted mb-0">Review profiles and move candidates through the hiring process.</p>
+            </div>
+            <div class="col-lg-6 text-lg-end mt-3 mt-lg-0">
+                <button class="btn btn-outline-primary rounded-pill px-4 fw-bold me-2" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#filterCollapse">
+                    <i class="fas fa-filter me-1"></i> Advanced Filters
+                </button>
+                <div class="dropdown d-inline-block">
+                    <button class="btn btn-white shadow-sm dropdown-toggle rounded-pill px-4 fw-bold"
+                        data-bs-toggle="dropdown">
+                        Filter by Job
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2 p-2"
+                        style="border-radius: 12px;">
+                        <li><a class="dropdown-item py-2 px-3 rounded-3" th:href="@{/employer/applicants}">All
+                                Applicants</a></li>
+                        <li th:each="jobItem : ${jobs}">
+                            <a class="dropdown-item py-2 px-3 rounded-3"
+                                th:href="@{'/employer/jobs/' + ${jobItem.id} + '/applicants'}"
+                                th:text="${jobItem.title}">Job Title</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters Collapse -->
+        <div class="collapse mb-4" id="filterCollapse">
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <form class="row g-3" method="get" th:action="@{/employer/applicants}">
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold text-muted">Status</label>
+                        <select name="status" class="form-select bg-light border-0 py-2 rounded-3">
+                            <option value="">All Statuses</option>
+                            <option value="Applied" th:selected="${status == 'Applied'}">Applied</option>
+                            <option value="Shortlisted" th:selected="${status == 'Shortlisted'}">Shortlisted</option>
+                            <option value="Under Review" th:selected="${status == 'Under Review'}">Under Review</option>
+                            <option value="Rejected" th:selected="${status == 'Rejected'}">Rejected</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold text-muted">Skills</label>
+                        <input type="text" name="skills" class="form-control bg-light border-0 py-2 rounded-3"
+                            placeholder="e.g. Java, AWS" th:value="${skills}">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small fw-bold text-muted">Min Experience</label>
+                        <input type="number" name="experience" class="form-control bg-light border-0 py-2 rounded-3"
+                            placeholder="e.g. 3" th:value="${experience}">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small fw-bold text-muted">Education</label>
+                        <input type="text" name="education" class="form-control bg-light border-0 py-2 rounded-3"
+                            placeholder="e.g. Bachelor" th:value="${education}">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold">Apply</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div th:if="${param.statusUpdated}" class="alert alert-success border-0 rounded-4 mb-4 shadow-sm">
+            <i class="fas fa-check-circle me-2"></i> Application status updated successfully!
+        </div>
+        <div th:if="${param.bulkUpdated}" class="alert alert-success border-0 rounded-4 mb-4 shadow-sm">
+            <i class="fas fa-check-circle me-2"></i> Multiple application statuses updated!
+        </div>
+        <div th:if="${param.noteAdded}" class="alert alert-info border-0 rounded-4 mb-4 shadow-sm">
+            <i class="fas fa-sticky-note me-2"></i> Note added to application.
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
+            <form id="bulkActionForm" th:action="@{/employer/applicants/bulk-status}" method="post">
+                <div class="p-3 bg-light border-bottom d-flex align-items-center justify-content-between"
+                    id="bulkToolbar" style="display: none !important;">
+                    <span class="small fw-bold text-primary"><span id="selectedCount">0</span> candidates
+                        selected</span>
+                    <div class="d-flex gap-2">
+                        <select name="status" class="form-select form-select-sm rounded-pill px-3" style="width: 150px;"
+                            required>
+                            <option value="">Choose Action</option>
+                            <option value="Shortlisted">Shortlist All</option>
+                            <option value="Rejected">Reject All</option>
+                            <option value="Under Review">Move to Review</option>
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-primary rounded-pill px-4 fw-bold">Apply
+                            Bulk</button>
+                    </div>
+                </div>
+
+                <div class="table-responsive" style="overflow: visible !important;">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr class="fw-bold text-muted small text-uppercase">
+                                <th class="ps-4 py-4 border-0" style="width: 40px;">
+                                    <input type="checkbox" class="form-check-input" id="selectAll">
+                                </th>
+                                <th class="py-4 border-0">Candidate Details</th>
+                                <th class="py-4 border-0">Job Applied For</th>
+                                <th class="py-4 border-0">Status</th>
+                                <th class="py-4 border-0 text-end pe-4">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="app : ${applicants}" class="border-top">
+                                <td class="ps-4 py-4">
+                                    <input type="checkbox" name="applicationIds" th:value="${app.id}"
+                                        class="form-check-input select-item">
+                                </td>
+                                <td class="py-4 fs-5">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="bg-light p-2 rounded-circle border border-2 border-white shadow-sm overflow-hidden"
+                                            style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; padding: 0 !important;">
+                                            <i class="fas fa-user text-primary fs-5"
+                                                th:if="${app.jobSeeker?.profileImagePath == null}"></i>
+                                            <img th:if="${app.jobSeeker?.profileImagePath != null}"
+                                                th:src="@{${app.jobSeeker.profileImagePath}}"
+                                                class="w-100 h-100 object-fit-cover" />
+                                        </div>
+                                        <div>
+                                            <h6 class="fw-bold mb-0"
+                                                th:text="${app.jobSeeker?.name ?: 'Unknown Candidate'}">Candidate Name
+                                            </h6>
+                                            <p class="small text-muted mb-0"
+                                                th:text="${app.jobSeeker?.email ?: 'No Email'}">Email</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-4">
+                                    <h6 class="fw-bold mb-0 small" th:text="${app.job?.title ?: 'Unknown Job'}">Job
+                                        Title</h6>
+                                    <p class="small text-muted mb-0">Applied <span
+                                            th:text="${app.appliedDate != null ? #temporals.format(app.appliedDate, 'MMM dd, yyyy') : 'Recently'}">Date</span>
+                                    </p>
+                                </td>
+                                <td class="py-4">
+                                    <span class="badge py-2 px-3 rounded-pill fw-semibold border-0"
+                                        th:classappend="${app.status == 'Applied' ? 'bg-primary-subtle text-primary' : 
+                                                       (app.status == 'Shortlisted' ? 'bg-success-subtle text-success' : 
+                                                       (app.status == 'Rejected' ? 'bg-danger-subtle text-danger' : 
+                                                       (app.status == 'Under Review' ? 'bg-warning-subtle text-warning' : 'bg-light text-muted')))}"
+                                        th:text="${app.status}">STATUS</span>
+                                </td>
+                                <td class="py-4 text-end pe-4">
+                                    <button type="button"
+                                        class="btn btn-primary btn-sm rounded-pill px-4 fw-bold shadow-sm"
+                                        data-bs-toggle="modal" th:data-bs-target="'#modal-' + ${app.id}">Review</button>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(applicants)}" class="border-top">
+                                <td colspan="5" class="py-5 text-center">
+                                    <div class="mb-3">
+                                        <i class="fas fa-users text-muted opacity-25" style="font-size: 3rem;"></i>
+                                    </div>
+                                    <h6 class="fw-bold">No applicants found</h6>
+                                    <p class="text-muted small">Try adjusting your filters or job selection.</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+
+            <div class="card-footer bg-white border-0 py-4 text-center" th:if="${totalPages > 0}">
+                <nav>
+                    <ul class="pagination justify-content-center border-0 mb-0">
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                            th:classappend="${currentPage == i} ? 'active'">
+                            <a class="page-link rounded-circle border-0 shadow-sm me-2"
+                                th:href="@{/employer/applicants(page=${i}, status=${status}, skills=${skills}, experience=${experience}, education=${education})}"
+                                th:text="${i + 1}">1</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </main>
+
+    <!-- Review Modals (Outside bulk form to avoid nested forms) -->
+    <div th:each="app : ${applicants}">
+        <div class="modal fade" th:id="'modal-' + ${app.id}" tabindex="-1">
+            <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                <div class="modal-content border-0 rounded-4 shadow">
+                    <div class="modal-header border-0 pb-0 bg-light p-4">
+                        <h5 class="modal-title fw-bold">Candidate Evaluation: <span
+                                th:text="${app.jobSeeker.name}"></span></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-5 text-start">
+                        <div class="row">
+                            <div class="col-lg-7">
+                                <!-- Candidate Profile Summary -->
+                                <div class="d-flex align-items-start gap-4 mb-5 pb-4 border-bottom">
+                                    <div class="bg-indigo-subtle rounded-4 overflow-hidden"
+                                        style="background-color: #e0e7ff; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-user-tie text-primary fs-1"
+                                            th:if="${app.jobSeeker?.profileImagePath == null}"></i>
+                                        <img th:if="${app.jobSeeker?.profileImagePath != null}"
+                                            th:src="@{${app.jobSeeker.profileImagePath}}"
+                                            class="w-100 h-100 object-fit-cover" />
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h3 class="fw-bold mb-1"
+                                            th:text="${app.jobSeeker?.name ?: 'Unknown Candidate'}">Name</h3>
+                                        <p class="text-muted mb-3"><i class="fas fa-envelope me-2"></i><span
+                                                th:text="${app.jobSeeker?.email ?: 'No Email'}"></span></p>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            <span class="badge bg-light text-dark border"><i
+                                                    class="fas fa-briefcase me-1"></i> <span
+                                                    th:text="${app.jobSeeker?.experienceYears ?: 0}">0</span> Yrs
+                                                Exp</span>
+                                            <span class="badge bg-light text-dark border"><i
+                                                    class="fas fa-map-marker-alt me-1"></i> <span
+                                                    th:text="${app.jobSeeker?.location ?: 'Not specified'}">Location</span></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-5">
+                                    <h6 class="fw-bold text-muted small text-uppercase mb-3">Resume Details</h6>
+                                    <!-- Uploaded Resume -->
+                                    <div th:if="${app.resume?.filePath != null}"
+                                        class="p-4 rounded-4 border border-dashed text-center bg-light mb-4">
+                                        <i class="far fa-file-pdf fs-1 text-danger mb-3"></i>
+                                        <h6 class="fw-bold" th:text="${app.resume?.fileName ?: 'resume.pdf'}">Resume.pdf
+                                        </h6>
+                                        <a th:href="@{'/api/resumes/download/' + ${app.resume?.id}}" target="_blank"
+                                            class="btn btn-outline-primary rounded-pill px-4 mt-2">
+                                            <i class="fas fa-external-link-alt me-1"></i> Preview & Download
+                                        </a>
+                                    </div>
+
+                                    <!-- Textual Resume Sections -->
+                                    <div class="bg-light p-4 rounded-4">
+                                        <div class="mb-3">
+                                            <label class="small fw-bold text-muted">SKILLS</label>
+                                            <p class="mb-0 fw-semibold"
+                                                th:text="${app.resume?.skills ?: 'Not specified'}"></p>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="small fw-bold text-muted">EDUCATION</label>
+                                            <p class="mb-0 text-pre-wrap" style="white-space: pre-wrap;"
+                                                th:text="${app.resume?.education ?: 'Not specified'}"></p>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="small fw-bold text-muted">EXPERIENCE</label>
+                                            <p class="mb-0 text-pre-wrap" style="white-space: pre-wrap;"
+                                                th:text="${app.resume?.experience ?: 'Not specified'}"></p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <h6 class="fw-bold text-muted small text-uppercase mb-3">Cover Letter</h6>
+                                    <div class="p-4 rounded-4 bg-light text-pre-wrap"
+                                        style="white-space: pre-wrap; min-height: 100px;"
+                                        th:text="${app.coverLetter ?: 'No cover letter provided.'}">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-5 ps-lg-5 border-start">
+                                <h6 class="fw-bold mb-4">Update Status</h6>
+                                <form th:action="@{'/employer/applicants/' + ${app.id} + '/status'}" method="post"
+                                    class="mb-5">
+                                    <input type="hidden" name="jobId" th:value="${jobId}">
+                                    <div class="d-flex flex-column gap-2">
+                                        <button type="submit" name="status" value="Shortlisted"
+                                            class="btn btn-success rounded-pill py-3 fw-bold">
+                                            <i class="fas fa-check-circle me-1"></i> Shortlist Candidate
+                                        </button>
+                                        <button type="submit" name="status" value="Under Review"
+                                            class="btn btn-outline-warning rounded-pill py-3 fw-bold">
+                                            <i class="fas fa-search me-1"></i> Move to Review
+                                        </button>
+                                        <button type="submit" name="status" value="Rejected"
+                                            class="btn btn-outline-danger rounded-pill py-3 fw-bold">
+                                            <i class="fas fa-times-circle me-1"></i> Reject Application
+                                        </button>
+                                    </div>
+                                </form>
+
+                                <h6 class="fw-bold mb-3">Internal Hiring Notes Tracking</h6>
+                                <div class="bg-indigo-subtle p-3 rounded-4 mb-4" style="background-color: #f5f3ff;">
+                                    <div class="notes-history mb-3" style="max-height: 200px; overflow-y: auto;">
+                                        <div th:each="noteItem : ${app.applicationNotes}"
+                                            class="small text-dark mb-2 border-bottom pb-2">
+                                            <div class="d-flex justify-content-between mb-1">
+                                                <span class="fw-bold text-primary">Observation</span>
+                                                <span class="text-muted" style="font-size: 0.7rem;"
+                                                    th:text="${#temporals.format(noteItem.createdAt, 'MMM dd, HH:mm')}"></span>
+                                            </div>
+                                            <div th:text="${noteItem.noteText}"></div>
+                                        </div>
+                                        <div class="small text-muted py-2"
+                                            th:if="${#lists.isEmpty(app.applicationNotes)}">No internal notes added yet.
+                                            Evaluation history will appear here.</div>
+                                    </div>
+
+                                    <form th:action="@{'/employer/applicants/' + ${app.id} + '/notes'}" method="post"
+                                        class="border-top pt-3">
+                                        <input type="hidden" name="jobId" th:value="${jobId}">
+                                        <textarea name="note"
+                                            class="form-control mb-2 border-0 bg-white rounded-3 shadow-sm" rows="3"
+                                            placeholder="Add a new observation..." required></textarea>
+                                        <button type="submit"
+                                            class="btn btn-sm btn-indigo w-100 rounded-pill py-2 fw-bold"
+                                            style="background-color: #6366f1; color: white;">Save Note</button>
+                                    </form>
+                                </div>
+
+                                <div class="card bg-light border-0 rounded-4 p-3 small">
+                                    <p class="mb-1 fw-bold">Application Stats</p>
+                                    <p class="mb-1 text-muted">Applied On: <span
+                                            th:text="${#temporals.format(app.appliedDate, 'MMM dd, yyyy HH:mm')}"></span>
+                                    </p>
+                                    <p class="mb-0 text-muted">Current Status: <span
+                                            class="fw-bold badge bg-white text-dark shadow-sm ms-1"
+                                            th:text="${app.status}"></span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Bulk Action Logic
+        const selectAll = document.getElementById('selectAll');
+        const selectItems = document.querySelectorAll('.select-item');
+        const bulkToolbar = document.getElementById('bulkToolbar');
+        const selectedCount = document.getElementById('selectedCount');
+
+        function updateToolbar() {
+            const checked = document.querySelectorAll('.select-item:checked');
+            selectedCount.innerText = checked.length;
+            if (checked.length > 0) {
+                bulkToolbar.style.setProperty('display', 'flex', 'important');
+            } else {
+                bulkToolbar.style.setProperty('display', 'none', 'important');
+            }
+        }
+
+        if (selectAll) {
+            selectAll.addEventListener('change', (e) => {
+                selectItems.forEach(item => item.checked = e.target.checked);
+                updateToolbar();
+            });
+        }
+
+        selectItems.forEach(item => {
+            item.addEventListener('change', updateToolbar);
+        });
+    </script>
+</body>
+
+</html>

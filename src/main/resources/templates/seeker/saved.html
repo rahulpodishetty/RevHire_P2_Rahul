@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: header('Saved Jobs - RevHire')}"></head>
+
+<body>
+    <div th:replace="~{fragments/layout :: sidebar('saved', ${role})}"></div>
+    <div th:replace="~{fragments/layout :: navbar}"></div>
+
+    <main class="main-content">
+        <div class="row mb-5 align-items-end">
+            <div class="col-lg-8">
+                <h2 class="fw-bold mb-1">Saved Jobs</h2>
+                <p class="text-muted mb-0">Track and apply for roles you've bookmarked for later.</p>
+            </div>
+
+        </div>
+
+        <div th:if="${param.unsaved}"
+            class="alert alert-warning border-0 shadow-sm rounded-4 mb-4 p-3 animate__animated animate__fadeIn">
+            <div class="d-flex align-items-center gap-3">
+                <i class="fas fa-heart-crack fs-4"></i>
+                <div>
+                    <h6 class="fw-bold mb-0">Removed!</h6>
+                    <p class="small mb-0 opacity-75">The job has been removed from your saved list.</p>
+                </div>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Dynamic Job Cards -->
+            <div th:each="saved : ${savedJobs}" class="col-md-6 mb-4">
+                <div class="card border-0 shadow-sm rounded-4 hover-lift">
+                    <div class="card-body p-4 border-start border-primary border-5 rounded-4 bg-white">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="p-3 bg-primary-subtle rounded-4 me-3 text-primary">
+                                <i class="fas fa-briefcase fs-3"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h5 class="fw-bold mb-0" th:text="${saved.job.title}">Frontend Developer</h5>
+                                <p class="small text-muted mb-0" th:text="${saved.job.company.name}">MicroGen Systems
+                                </p>
+                            </div>
+                            <div class="dropdown">
+                                <button class="btn btn-light rounded-circle shadow-sm" data-bs-toggle="dropdown"><i
+                                        class="fas fa-ellipsis-v"></i></button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2 p-2"
+                                    style="border-radius: 12px;">
+                                    <li>
+                                        <form th:action="@{'/seeker/jobs/' + ${saved.job.id} + '/unsave'}" method="post"
+                                            class="d-inline">
+                                            <button type="submit" class="dropdown-item py-2 px-3 rounded-3 text-danger">
+                                                <i class="fas fa-heart-crack me-2 small"></i> Remove from Saved
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li>
+                                        <form th:action="@{'/seeker/jobs/' + ${saved.job.id} + '/apply'}" method="post"
+                                            class="d-inline">
+                                            <button type="submit" class="dropdown-item py-2 px-3 rounded-3">
+                                                <i class="fas fa-paper-plane me-2 small"></i> Apply Now
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-3 mb-4 small text-muted">
+                            <span><i class="fas fa-map-marker-alt me-1"></i> <span th:text="${saved.job.location}">New
+                                    York, NY</span></span>
+                            <span><i class="fas fa-clock me-1"></i> <span
+                                    th:text="${saved.job.jobType}">Full-time</span></span>
+                            <span><i class="fas fa-dollar-sign me-1"></i> <span
+                                    th:text="${saved.job.salaryRange}">$100k</span></span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center border-top pt-4">
+                            <p class="small text-muted mb-0">Saved on <span
+                                    th:text="${#temporals.format(saved.savedOn, 'MMM dd')}">Oct 30</span></p>
+                            <a th:href="@{'/seeker/jobs/' + ${saved.job.id}}"
+                                class="btn btn-primary-subtle btn-sm fw-semibold rounded-pill px-4 shadow-sm border-0">View
+                                Details</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div th:if="${#lists.isEmpty(savedJobs)}" class="col-12 text-center py-5">
+                <div class="p-5 bg-white rounded-4 shadow-sm">
+                    <div class="p-4 bg-light rounded-circle shadow-sm d-inline-block text-primary mb-3">
+                        <i class="fas fa-heart text-danger fs-2"></i>
+                    </div>
+                    <h5 class="fw-bold mb-1">Your saved jobs list is empty</h5>
+                    <p class="small text-muted mb-4 opacity-75">Browse latest jobs and save roles to track your future
+                        career.</p>
+                    <a href="/seeker/jobs" class="btn btn-primary btn-sm rounded-pill px-5 fw-bold">Browse Latest
+                        Jobs</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

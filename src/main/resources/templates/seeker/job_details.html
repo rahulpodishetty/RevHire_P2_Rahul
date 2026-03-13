@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: header('Job Details - RevHire')}"></head>
+
+<body>
+    <div th:replace="~{fragments/layout :: sidebar('search', ${role})}"></div>
+    <div th:replace="~{fragments/layout :: navbar}"></div>
+
+    <main class="main-content">
+        <div class="row mb-5">
+            <div class="col-lg-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-4 small">
+                        <li class="breadcrumb-item"><a href="/seeker/jobs" class="text-decoration-none">Search Jobs</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page" th:text="${job.title}">Job Details</li>
+                    </ol>
+                </nav>
+            </div>
+
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                    <div class="card-body p-5">
+                        <div class="d-flex align-items-center gap-4 mb-4">
+                            <div class="bg-primary bg-opacity-10 p-4 rounded-4">
+                                <i class="fas fa-building text-primary fs-2"></i>
+                            </div>
+                            <div>
+                                <h2 class="fw-bold mb-1" th:text="${job.title}">Senior Software Engineer</h2>
+                                <h5 class="text-primary mb-0"
+                                    th:text="${job.company != null ? job.company.name : 'Company'}">TechFlow Solutions
+                                </h5>
+                            </div>
+                        </div>
+
+                        <div class="row g-4 py-4 border-top border-bottom mb-4">
+                            <div class="col-md-4">
+                                <div class="small text-muted text-uppercase fw-bold mb-1">Location</div>
+                                <div class="fw-semibold"><i class="fas fa-map-marker-alt text-danger me-2"></i> <span
+                                        th:text="${job.location}">San Francisco, CA</span></div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="small text-muted text-uppercase fw-bold mb-1">Job Type</div>
+                                <div class="fw-semibold"><i class="fas fa-clock text-primary me-2"></i> <span
+                                        th:text="${job.jobType}">Full-time</span></div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="small text-muted text-uppercase fw-bold mb-1">Salary Range</div>
+                                <div class="fw-semibold"><i class="fas fa-dollar-sign text-success me-2"></i> <span
+                                        th:text="${job.salaryRange}">$140k - $180k</span></div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="small text-muted text-uppercase fw-bold mb-1">Experience</div>
+                                <div class="fw-semibold"
+                                    th:text="${(job.experienceRequired != null ? job.experienceRequired : '0') + ' Years'}">
+                                    3+ Years</div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="small text-muted text-uppercase fw-bold mb-1">Deadline</div>
+                                <div class="fw-semibold" th:text="${job.deadline}">Dec 31, 2024</div>
+                            </div>
+                        </div>
+
+                        <h5 class="fw-bold mb-3">Job Description</h5>
+                        <div class="text-muted lh-lg mb-5" style="white-space: pre-line;" th:text="${job.description}">
+                            We are looking for a passionate Senior Software Engineer to join our core infrastructure
+                            team...
+                        </div>
+
+                        <h5 class="fw-bold mb-3">Skills Required</h5>
+                        <div class="d-flex flex-wrap gap-2 mb-0">
+                            <span
+                                th:each="skill : ${#strings.arraySplit(job.skillsRequired != null ? job.skillsRequired : '', ',')}"
+                                class="badge bg-light text-primary fs-6 px-3 py-2 rounded-3 border fw-normal"
+                                th:text="${#strings.trim(skill)}">Java</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 position-sticky" style="top: 100px;">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-4">Interested in this role?</h5>
+                        <p class="text-muted small mb-4">Submit your application today. The employer will review your
+                            profile and resume.</p>
+
+                        <div th:if="${param.resume_uploaded}"
+                            class="alert alert-success small mb-3 border-0 bg-success-subtle text-success-emphasis">
+                            <i class="fas fa-check-circle me-1"></i> Resume uploaded successfully! You can now apply.
+                        </div>
+                        <div th:if="${param.error == 'already_applied'}"
+                            class="alert alert-warning small mb-3 border-0 bg-warning-subtle text-warning-emphasis">
+                            <i class="fas fa-exclamation-triangle me-1"></i> You have already applied for this position.
+                        </div>
+                        <div th:if="${param.error == 'missing_resume'}"
+                            class="alert alert-danger small mb-3 border-0 bg-danger-subtle text-danger-emphasis">
+                            <i class="fas fa-file-excel me-1"></i> Resume is required. Please <a
+                                th:href="@{'/seeker/resumes?jobId=' + ${job.id}}" class="fw-bold">upload one</a> first.
+                        </div>
+
+                        <div th:if="${alreadyApplied}" class="text-center mb-4">
+                            <div
+                                class="badge bg-success bg-opacity-10 text-success p-3 rounded-pill fw-bold w-100 border border-success border-opacity-25">
+                                <i class="fas fa-check-circle me-2"></i> Application Submitted
+                            </div>
+                            <p class="small text-muted mt-2 mb-0">Track your status in <a href="/seeker/applications"
+                                    class="text-primary fw-semibold">My Applications</a></p>
+                        </div>
+
+                        <div th:if="${job.status != 'ACTIVE'}" class="text-center mb-4">
+                            <div
+                                class="badge bg-danger bg-opacity-10 text-danger p-3 rounded-pill fw-bold w-100 border border-danger border-opacity-25">
+                                <i class="fas fa-lock me-2"></i> Not Accepting Applications
+                            </div>
+                            <p class="small text-muted mt-2 mb-0">This job is currently <span
+                                    th:text="${job.status}">CLOSED</span>.</p>
+                        </div>
+
+                        <div th:if="${job.status == 'ACTIVE' and !alreadyApplied}">
+                            <div th:if="${!hasResumes}"
+                                class="alert alert-info small border-0 mb-4 bg-light text-muted">
+                                <i class="fas fa-info-circle me-2 text-primary"></i> You need to <a
+                                    href="/seeker/resumes" class="fw-bold text-primary">upload a resume</a> before
+                                applying.
+                            </div>
+
+                            <form th:action="@{'/seeker/jobs/' + ${job.id} + '/apply'}" method="post" id="applyForm">
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold small text-uppercase text-muted">Cover Letter
+                                        (Optional)</label>
+                                    <textarea name="coverLetter" class="form-control bg-light border-0 rounded-3"
+                                        rows="4"
+                                        placeholder="Explain why you're a great fit for this role..."></textarea>
+                                </div>
+                                <button type="submit"
+                                    th:class="'btn w-100 rounded-pill py-3 fw-bold shadow-sm mb-3 ' + (${hasResumes} ? 'btn-primary' : 'btn-secondary disabled')"
+                                    th:disabled="${!hasResumes}">
+                                    <i class="fas fa-paper-plane me-2"></i> Submit Application
+                                </button>
+                                <p class="very-small text-muted text-center mb-0">Your active resume will be attached
+                                    automatically.</p>
+                            </form>
+                        </div>
+
+                        <form th:action="@{'/seeker/jobs/' + ${job.id} + '/save'}" method="post">
+                            <button type="submit" class="btn btn-outline-danger w-100 rounded-pill py-3 fw-bold">
+                                <i class="far fa-heart me-2"></i> Save for Later
+                            </button>
+                        </form>
+
+                        <hr class="my-4">
+
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="bg-light p-2 rounded-3">
+                                <i class="fas fa-share-alt text-muted"></i>
+                            </div>
+                            <span class="small text-muted">Share this job listing</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - RevHire</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1e293b;
+            background-image: radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.05) 1px, transparent 0);
+            background-size: 40px 40px;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+        }
+
+        .login-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 48px;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .form-control {
+            border-radius: 8px;
+            padding: 10px 16px;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            border-color: var(--primary-hover);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-card">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold mb-0">Welcome Back</h2>
+            <p class="text-muted">Enter your credentials to access RevHire</p>
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger border-0 rounded-4" th:text="${error}"></div>
+        <div th:if="${success}" class="alert alert-success border-0 rounded-4" th:text="${success}"></div>
+
+        <form id="loginForm">
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Email Address</label>
+                <input type="email" id="email" name="email" class="form-control" placeholder="name@company.com"
+                    required>
+            </div>
+            <div class="mb-4">
+                <div class="d-flex justify-content-between">
+                    <label class="form-label fw-semibold">Password</label>
+                    <a href="#" class="small text-primary text-decoration-none">Forgot?</a>
+                </div>
+                <input type="password" id="password" name="password" class="form-control" placeholder="••••••••"
+                    required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 mb-3 shadow-sm">Sign In</button>
+        </form>
+
+        <script>
+            // Clear any old, non-HttpOnly javascript cookie that may have been left behind previously
+            document.cookie = "jwtToken=; path=/; max-age=0;";
+
+            document.getElementById('loginForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+
+                try {
+                    const response = await fetch('/api/auth/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, password })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        localStorage.setItem('jwtToken', data.token);
+                        localStorage.setItem('userRole', data.role);
+                        localStorage.setItem('userName', data.username);
+
+                        // Note: the jwtToken cookie is now set by the server as HttpOnly.
+                        // We do not need to set document.cookie manually here.
+
+                        if (data.role === 'ROLE_SEEKER') {
+                            window.location.href = '/seeker/dashboard';
+                        } else if (data.role === 'ROLE_EMPLOYER') {
+                            window.location.href = '/employer/dashboard';
+                        } else {
+                            window.location.href = '/index';
+                        }
+                    } else {
+                        alert(data.message || 'Login failed. Please check your credentials.');
+                    }
+                } catch (error) {
+                    console.error('Login error:', error);
+                    alert('An error occurred. Please try again later.');
+                }
+            });
+        </script>
+
+        <div class="text-center mt-4 pt-3 border-top">
+            <p class="text-muted small">Don't have an account?</p>
+            <div class="d-flex justify-content-center gap-2">
+                <a href="/register/seeker" class="btn btn-light btn-sm rounded-pill px-3">Join as Seeker</a>
+                <a href="/register/employer" class="btn btn-light btn-sm rounded-pill px-3">Join as Employer</a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
