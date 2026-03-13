@@ -37,6 +37,10 @@ public class Company {
     @Column(length = 255)
     private String location;
 
+    @Column(name = "logo_path", length = 255)
+    private String logoPath;
+
+    @Builder.Default
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
     private List<Job> jobs = new ArrayList<>();

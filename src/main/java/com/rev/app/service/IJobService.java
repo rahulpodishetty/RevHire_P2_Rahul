@@ -12,10 +12,9 @@ public interface IJobService {
     JobDto getJobById(Long jobId);
 
     Page<JobDto> getAllJobs(String title, String location, Integer experience, String company, String salary,
-            String jobType, Pageable pageable);
+            String jobType, java.time.LocalDate postedDate, org.springframework.data.domain.Pageable pageable);
 
-    Page<JobDto> getJobsByEmployer(Long employerId, Pageable pageable);
+    Page<JobDto> getJobsByEmployer(Long employerId, String status, Pageable pageable);
 
     void deleteJob(Long employerId, Long jobId);
 }
-

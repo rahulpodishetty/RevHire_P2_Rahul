@@ -17,6 +17,7 @@ public class CompanyMapper {
                 .description(company.getDescription())
                 .website(company.getWebsite())
                 .location(company.getLocation())
+                .logoPath(company.getLogoPath())
                 .build();
     }
 }

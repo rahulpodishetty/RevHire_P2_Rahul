@@ -10,4 +10,6 @@ public interface IEmployerService {
     EmployerDto updateProfile(Long userId, EmployerDto dto);
 
     Map<String, Object> getDashboardStats(Long userId);
+
+    void uploadCompanyLogo(Long employerId, org.springframework.web.multipart.MultipartFile file);
 }

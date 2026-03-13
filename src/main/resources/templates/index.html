@@ -7,52 +7,100 @@
     <title>RevHire - Your Future Starts Here</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --sidebar-bg: #1e293b;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+        }
+
         body {
-            font-family: 'Outfit', sans-serif;
-            background-color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
         }
 
-        .hero {
-            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
-            padding: 120px 0;
-            color: white;
+        .hero-slide {
+            height: 90vh;
+            min-height: 600px;
+            background-size: cover;
+            background-position: center;
             position: relative;
-            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
         }
 
-        .hero::after {
-            content: '';
+        .hero-overlay {
             position: absolute;
-            top: -50%;
-            right: -10%;
-            width: 600px;
-            height: 600px;
-            background: rgba(79, 70, 229, 0.2);
-            border-radius: 50%;
-            filter: blur(100px);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 10;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-            border: none;
+            background-color: var(--primary);
+            border: 1px solid var(--primary);
             padding: 15px 35px;
             border-radius: 12px;
             font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            border-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -10px rgba(79, 70, 229, 0.5);
+        }
+
+        .btn-employer {
+            background-color: var(--primary);
+            /* Same color as specified */
+            opacity: 0.95;
+        }
+
+        .carousel-fade .carousel-item {
+            transition: opacity 0.8s ease-in-out;
+        }
+
+        .carousel-indicators [data-bs-target] {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin: 0 6px;
         }
 
         .card {
-            border: none;
-            border-radius: 24px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
             transition: all 0.3s;
         }
 
         .card:hover {
-            transform: translateY(-10px);
+            transform: translateY(-8px);
+            box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
@@ -68,19 +116,120 @@
         </div>
     </nav>
 
-    <div class="hero text-center">
-        <div class="container">
-            <h1 class="display-2 fw-bold mb-4">Find your <span style="color: #818cf8;">Dream Career</span> here.</h1>
-            <p class="lead mb-5 opacity-75 mx-auto" style="max-width: 700px;">
-                Connecting top talent with the world's most innovative companies.
-                Whether you're hiring or looking to be hired, RevHire is your platform for success.
-            </p>
-            <div class="d-flex justify-content-center gap-3">
-                <a href="/register/seeker" class="btn btn-primary btn-lg">I'm a Job Seeker</a>
-                <a href="/register/employer" class="btn btn-outline-light btn-lg border-2"
-                    style="border-radius: 12px; padding: 15px 35px;">I'm an Employer</a>
+    <div id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel">
+        <div class="carousel-indicators">
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-current="true"
+                aria-label="Slide 1"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="3" aria-label="Slide 4"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="4" aria-label="Slide 5"></button>
+        </div>
+        <div class="carousel-inner">
+            <div class="carousel-item active" data-bs-interval="4500">
+                <div class="hero-slide" style="background-image: url('/images/hero/slide1.png');">
+                    <div class="hero-overlay"></div>
+                    <div class="container hero-content text-center">
+                        <h1 class="display-2 fw-bold mb-4">Find your <span style="color: #a5b4fc;">Dream Career</span>
+                            here.</h1>
+                        <p class="lead mb-5 opacity-90 mx-auto" style="max-width: 700px;">
+                            Connecting top talent with the world's most innovative companies.
+                            Whether you're hiring or looking to be hired, RevHire is your platform for success.
+                        </p>
+                        <div class="d-flex justify-content-center flex-wrap gap-3">
+                            <a href="/register/seeker" class="btn btn-primary btn-lg"><i class="fas fa-user-tie"></i>
+                                I'm a Job Seeker</a>
+                            <a href="/register/employer" class="btn btn-primary btn-lg btn-employer"><i
+                                    class="fas fa-building"></i> I'm an Employer</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="carousel-item" data-bs-interval="4500">
+                <div class="hero-slide" style="background-image: url('/images/hero/slide2.png');">
+                    <div class="hero-overlay"></div>
+                    <div class="container hero-content text-center">
+                        <h1 class="display-2 fw-bold mb-4">Find your <span style="color: #a5b4fc;">Dream Career</span>
+                            here.</h1>
+                        <p class="lead mb-5 opacity-90 mx-auto" style="max-width: 700px;">
+                            Connecting top talent with the world's most innovative companies.
+                            Whether you're hiring or looking to be hired, RevHire is your platform for success.
+                        </p>
+                        <div class="d-flex justify-content-center flex-wrap gap-3">
+                            <a href="/register/seeker" class="btn btn-primary btn-lg"><i class="fas fa-user-tie"></i>
+                                I'm a Job Seeker</a>
+                            <a href="/register/employer" class="btn btn-primary btn-lg btn-employer"><i
+                                    class="fas fa-building"></i> I'm an Employer</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="carousel-item" data-bs-interval="4500">
+                <div class="hero-slide" style="background-image: url('/images/hero/slide3.png');">
+                    <div class="hero-overlay"></div>
+                    <div class="container hero-content text-center">
+                        <h1 class="display-2 fw-bold mb-4">Find your <span style="color: #a5b4fc;">Dream Career</span>
+                            here.</h1>
+                        <p class="lead mb-5 opacity-90 mx-auto" style="max-width: 700px;">
+                            Connecting top talent with the world's most innovative companies.
+                            Whether you're hiring or looking to be hired, RevHire is your platform for success.
+                        </p>
+                        <div class="d-flex justify-content-center flex-wrap gap-3">
+                            <a href="/register/seeker" class="btn btn-primary btn-lg"><i class="fas fa-user-tie"></i>
+                                I'm a Job Seeker</a>
+                            <a href="/register/employer" class="btn btn-primary btn-lg btn-employer"><i
+                                    class="fas fa-building"></i> I'm an Employer</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="carousel-item" data-bs-interval="4500">
+                <div class="hero-slide" style="background-image: url('/images/hero/slide4.png');">
+                    <div class="hero-overlay"></div>
+                    <div class="container hero-content text-center">
+                        <h1 class="display-2 fw-bold mb-4">Find your <span style="color: #a5b4fc;">Dream Career</span>
+                            here.</h1>
+                        <p class="lead mb-5 opacity-90 mx-auto" style="max-width: 700px;">
+                            Connecting top talent with the world's most innovative companies.
+                            Whether you're hiring or looking to be hired, RevHire is your platform for success.
+                        </p>
+                        <div class="d-flex justify-content-center flex-wrap gap-3">
+                            <a href="/register/seeker" class="btn btn-primary btn-lg"><i class="fas fa-user-tie"></i>
+                                I'm a Job Seeker</a>
+                            <a href="/register/employer" class="btn btn-primary btn-lg btn-employer"><i
+                                    class="fas fa-building"></i> I'm an Employer</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="carousel-item" data-bs-interval="4500">
+                <div class="hero-slide" style="background-image: url('/images/hero/slide5.png');">
+                    <div class="hero-overlay"></div>
+                    <div class="container hero-content text-center">
+                        <h1 class="display-2 fw-bold mb-4">Find your <span style="color: #a5b4fc;">Dream Career</span>
+                            here.</h1>
+                        <p class="lead mb-5 opacity-90 mx-auto" style="max-width: 700px;">
+                            Connecting top talent with the world's most innovative companies.
+                            Whether you're hiring or looking to be hired, RevHire is your platform for success.
+                        </p>
+                        <div class="d-flex justify-content-center flex-wrap gap-3">
+                            <a href="/register/seeker" class="btn btn-primary btn-lg"><i class="fas fa-user-tie"></i>
+                                I'm a Job Seeker</a>
+                            <a href="/register/employer" class="btn btn-primary btn-lg btn-employer"><i
+                                    class="fas fa-building"></i> I'm an Employer</a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
     </div>
 
     <div class="container py-5 mt-5">

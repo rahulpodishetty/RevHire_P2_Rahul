@@ -32,6 +32,7 @@ public class Employer {
     @Column(nullable = false, length = 100)
     private String designation;
 
+    @Builder.Default
     @OneToMany(mappedBy = "employer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
     private List<ApplicationNote> notes = new ArrayList<>();

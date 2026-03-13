@@ -30,8 +30,8 @@
         <div class="btn-group shadow-sm p-1 bg-white rounded-pill mb-4">
             <a href="/seeker/applications" class="btn rounded-pill btn-sm px-4 fw-semibold"
                 th:classappend="${statusFilter == null or statusFilter == ''} ? 'btn-primary' : 'btn-light'">All</a>
-            <a href="/seeker/applications?status=SHORTLISTED" class="btn rounded-pill btn-sm px-4 fw-semibold"
-                th:classappend="${statusFilter == 'SHORTLISTED'} ? 'btn-primary' : 'btn-light'">Shortlisted</a>
+            <a href="/seeker/applications?status=Shortlisted" class="btn rounded-pill btn-sm px-4 fw-semibold"
+                th:classappend="${statusFilter == 'Shortlisted'} ? 'btn-primary' : 'btn-light'">Shortlisted</a>
         </div>
 
         <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
@@ -63,19 +63,20 @@
                                 2026</td>
                             <td class="py-4">
                                 <span th:class="'badge py-2 px-3 rounded-pill fw-semibold border-0 ' + 
-                                    (${app.status == 'REJECTED'} ? 'bg-danger-subtle text-danger' : 
-                                    (${app.status == 'SHORTLISTED'} ? 'bg-success-subtle text-success' : 
-                                    (${app.status == 'WITHDRAWN'} ? 'bg-secondary-subtle text-secondary' : 
-                                    (${app.status == 'UNDER_REVIEW'} ? 'bg-warning-subtle text-warning' : 
-                                    'bg-primary-subtle text-primary'))))" th:text="${app.status}">APPLIED</span>
+                                    (${app.status == 'Rejected'} ? 'bg-danger-subtle text-danger' : 
+                                    (${app.status == 'Shortlisted'} ? 'bg-success-subtle text-success' : 
+                                    (${app.status == 'Withdrawn'} ? 'bg-secondary-subtle text-secondary' : 
+                                    (${app.status == 'Under Review'} ? 'bg-warning-subtle text-warning' : 
+                                    'bg-primary-subtle text-primary'))))" th:text="${app.status}">Applied</span>
                             </td>
                             <td class="py-4 text-end pe-4">
                                 <div class="d-flex gap-2 justify-content-end">
-                                    <a th:href="@{'/seeker/jobs/' + ${app.jobId}}"
-                                        class="btn btn-light btn-sm rounded-3 fw-semibold px-3">
+                                    <a th:href="${app.jobId != null} ? @{'/seeker/jobs/' + ${app.jobId}} : '#'"
+                                        class="btn btn-light btn-sm rounded-3 fw-semibold px-3"
+                                        th:classappend="${app.jobId == null} ? 'disabled text-muted'">
                                         <i class="fas fa-eye me-1"></i> Details
                                     </a>
-                                    <button th:if="${app.status == 'APPLIED' or app.status == 'UNDER_REVIEW'}"
+                                    <button th:if="${app.status == 'Applied' or app.status == 'Under Review'}"
                                         class="btn btn-outline-danger btn-sm rounded-3 fw-semibold px-3"
                                         th:onclick="'openWithdrawModal(' + ${app.id} + ')'">
                                         <i class="fas fa-times me-1"></i> Withdraw

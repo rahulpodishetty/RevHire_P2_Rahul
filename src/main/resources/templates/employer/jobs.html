@@ -2,6 +2,15 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head th:replace="~{fragments/layout :: header('My Job Listings - RevHire')}"></head>
+<style>
+    .dropdown-menu {
+        z-index: 1050 !important;
+    }
+
+    .table-responsive {
+        overflow: visible !important;
+    }
+</style>
 
 <body>
     <div th:replace="~{fragments/layout :: sidebar('jobs', ${role})}"></div>
@@ -33,7 +42,7 @@
             <i class="fas fa-trash-alt me-2"></i> Job listing removed.
         </div>
 
-        <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
+        <div class="card border-0 shadow-sm rounded-4 mb-5" style="overflow: visible !important;">
             <div class="table-responsive" style="overflow: visible !important;">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="bg-light">
@@ -102,7 +111,7 @@
                                                 </button>
                                             </form>
                                         </li>
-                                        <li th:if="${job.status == 'ACTIVE'}">
+                                        <li th:if="${job.status == 'ACTIVE' or job.status == 'CLOSED'}">
                                             <form th:action="@{'/employer/jobs/' + ${job.id} + '/status'}"
                                                 method="post">
                                                 <input type="hidden" name="status" value="FILLED">
@@ -132,13 +141,12 @@
                                             <hr class="dropdown-divider mx-2">
                                         </li>
                                         <li>
-                                            <form th:action="@{'/employer/jobs/' + ${job.id} + '/delete'}" method="post"
-                                                onsubmit="return confirm('Archive this job?');">
-                                                <button type="submit"
-                                                    class="dropdown-item py-2 px-3 rounded-3 text-muted">
-                                                    <i class="fas fa-trash-alt me-2"></i> Delete Job
-                                                </button>
-                                            </form>
+                                            <a href="javascript:void(0)"
+                                                class="dropdown-item py-2 px-3 rounded-3 text-danger"
+                                                th:data-job-id="${job.id}" th:data-job-title="${job.title}"
+                                                onclick="prepareDelete(this.getAttribute('data-job-id'), this.getAttribute('data-job-title'))">
+                                                <i class="fas fa-trash-alt me-2"></i> Delete Job
+                                            </a>
                                         </li>
                                     </ul>
                                 </div>
@@ -198,19 +206,28 @@
                                 </div>
                             </div>
                         </div>
+                        <h6 class="fw-bold mb-3"><i class="fas fa-chart-pie me-2 text-primary"></i>Application
+                            Distribution</h6>
+                        <div class="list-group list-group-flush mb-4 rounded-4 overflow-hidden shadow-sm">
+                            <div th:each="entry : ${job.statusCounts}"
+                                class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                <span class="fw-semibold text-muted" th:text="${entry.key}">Applied</span>
+                                <span class="badge bg-primary rounded-pill px-3" th:text="${entry.value}">0</span>
+                            </div>
+                        </div>
+
                         <div class="card bg-light border-0 rounded-4 p-4 text-start">
-                            <h6 class="fw-bold mb-3"><i class="fas fa-info-circle me-2 text-primary"></i>Hiring Insight
+                            <h6 class="fw-bold mb-3"><i class="fas fa-star me-2 text-warning"></i>Shortlisted Candidates
                             </h6>
-                            <p class="small text-muted mb-3">Based on current applications, your job has a <span
-                                    class="text-primary fw-bold"
-                                    th:text="${job.applicantCount > 5 ? 'High' : 'Moderate'}">Moderate</span> level of
-                                interest from candidates.</p>
-                            <div class="progress mb-1" style="height: 8px;">
-                                <div class="progress-bar bg-primary" role="progressbar"
-                                    th:style="'width: ' + (${job.applicantCount} * 10 > 100 ? 100 : ${job.applicantCount} * 10) + '%'">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="bg-warning bg-opacity-10 p-3 rounded-3">
+                                    <i class="fas fa-user-check text-warning fs-3"></i>
+                                </div>
+                                <div>
+                                    <h3 class="fw-bold mb-0" th:text="${job.shortlistedCount}">0</h3>
+                                    <p class="small text-muted mb-0">Qualified talent ready for interview</p>
                                 </div>
                             </div>
-                            <small class="text-muted">Reach: Optimized</small>
                         </div>
                     </div>
                     <div class="modal-footer border-0 p-4">
@@ -222,7 +239,45 @@
         </div>
     </div>
 
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header border-0 p-4">
+                    <h5 class="modal-title fw-bold text-danger">Confirm Archive</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4 pb-4">
+                    <p class="text-muted">Are you sure you want to archive this job? This will permanently remove all
+                        candidate applications and saved job records.</p>
+                    <div class="bg-light p-3 rounded-3 mb-0">
+                        <span class="small text-muted d-block text-uppercase fw-bold mb-1">Archiving Job:</span>
+                        <span id="deleteJobTitle" class="fw-bold text-dark">Job Title</span>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4"
+                        data-bs-dismiss="modal">Cancel</button>
+                    <form id="globalDeleteForm" method="post">
+                        <!-- CSRF handled safely to avoid null pointer when protection is disabled -->
+                        <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}"
+                            th:value="${_csrf.token}" />
+                        <button type="submit" class="btn btn-danger rounded-pill px-4">Confirm Archive</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function prepareDelete(jobId, jobTitle) {
+            document.getElementById('deleteJobTitle').innerText = jobTitle;
+            document.getElementById('globalDeleteForm').action = '/employer/jobs/' + jobId + '/delete';
+            var deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+            deleteModal.show();
+        }
+    </script>
 </body>
 
 </html>

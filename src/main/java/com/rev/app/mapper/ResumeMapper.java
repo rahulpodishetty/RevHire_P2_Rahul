@@ -17,7 +17,28 @@ public class ResumeMapper {
                 .experience(resume.getExperience())
                 .skills(resume.getSkills())
                 .projects(resume.getProjects())
+                .certifications(resume.getCertifications())
                 .filePath(resume.getFilePath())
+                .fileName(resume.getFileName())
+                .isActive(resume.getIsActive() != null ? resume.getIsActive() : false)
+                .uploadedAt(resume.getUploadedAt())
+                .build();
+    }
+
+    public Resume toEntity(ResumeDto dto) {
+        if (dto == null)
+            return null;
+        return Resume.builder()
+                .id(dto.getId())
+                .objective(dto.getObjective())
+                .education(dto.getEducation())
+                .experience(dto.getExperience())
+                .skills(dto.getSkills())
+                .projects(dto.getProjects())
+                .certifications(dto.getCertifications())
+                .filePath(dto.getFilePath())
+                .fileName(dto.getFileName())
+                .isActive(dto.getIsActive() != null ? dto.getIsActive() : false)
                 .build();
     }
 }

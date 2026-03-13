@@ -9,5 +9,6 @@ import java.util.List;
 @Repository
 public interface IResumeRepository extends JpaRepository<Resume, Long> {
     List<Resume> findByJobSeekerId(Long jobSeekerId);
-}
 
+    java.util.Optional<Resume> findByJobSeekerIdAndIsActive(Long jobSeekerId, Boolean isActive);
+}

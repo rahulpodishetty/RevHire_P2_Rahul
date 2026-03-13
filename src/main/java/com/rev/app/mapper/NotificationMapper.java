@@ -12,7 +12,10 @@ public class NotificationMapper {
         return NotificationDto.builder()
                 .id(notification.getId())
                 .userId(notification.getUser() != null ? notification.getUser().getId() : null)
+                .title(notification.getTitle())
                 .message(notification.getMessage())
+                .type(notification.getType())
+                .referenceId(notification.getReferenceId())
                 .isRead(notification.getIsRead())
                 .createdAt(notification.getCreatedAt())
                 .build();

@@ -14,8 +14,17 @@ public class JobSeekerMapper {
                 .userId(jobSeeker.getUser() != null ? jobSeeker.getUser().getId() : null)
                 .name(jobSeeker.getName())
                 .phone(jobSeeker.getPhone())
+                .email(jobSeeker.getUser() != null ? jobSeeker.getUser().getEmail() : null)
                 .experienceYears(jobSeeker.getExperienceYears())
+                .location(jobSeeker.getLocation())
+                .currentEmploymentStatus(jobSeeker.getCurrentEmploymentStatus())
+                .education(jobSeeker.getEducation())
+                .workExperience(jobSeeker.getWorkExperience())
+                .skills(jobSeeker.getSkills())
+                .certifications(jobSeeker.getCertifications())
+                .projects(jobSeeker.getProjects())
                 .profileCompletion(jobSeeker.getProfileCompletion())
+                .profileImagePath(jobSeeker.getProfileImagePath())
                 .build();
     }
 }

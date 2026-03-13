@@ -3,6 +3,8 @@ package com.rev.app.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -23,6 +25,7 @@ public class Application {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "job_id", nullable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
     @ToString.Exclude
     private Job job;
 
@@ -49,7 +52,11 @@ public class Application {
     @Column(name = "withdraw_reason", length = 1000)
     private String withdrawReason;
 
+    @Column(name = "notes", length = 2000)
+    private String notes;
+
+    @Builder.Default
     @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
-    private List<ApplicationNote> notes = new ArrayList<>();
+    private List<ApplicationNote> applicationNotes = new ArrayList<>();
 }

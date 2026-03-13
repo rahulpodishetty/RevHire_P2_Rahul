@@ -7,7 +7,7 @@
     <title th:text="${title}">RevHire - Premium Job Portal</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link th:href="@{/css/style.css}" rel="stylesheet">
@@ -20,9 +20,9 @@
 
     <div th:fragment="sidebar(activeLink, role)">
         <div class="sidebar">
-            <div class="px-4 mb-5">
-                <h3 class="fw-bold text-white mb-0">Rev<span style="color: var(--accent-color)">Hire</span></h3>
-                <p class="small text-white-50 mb-0">Professional Portal</p>
+            <div class="px-3 mb-5 mt-2">
+                <h3 class="fw-bold text-white mb-0">Rev<span class="text-primary">Hire</span></h3>
+                <p class="small text-muted mb-0">Professional Recruitment Platform</p>
             </div>
             <ul class="nav flex-column">
                 <li class="nav-item">
@@ -81,7 +81,7 @@
                     <li class="nav-item">
                         <a class="nav-link" th:classappend="${activeLink == 'resumes' ? 'active' : ''}"
                             th:href="@{/seeker/resumes}">
-                            <i class="fas fa-file-user"></i> My Resumes
+                            <i class="fas fa-address-card"></i> My Resumes
                         </a>
                     </li>
                     <li class="nav-item">
@@ -101,7 +101,7 @@
         </div>
     </div>
 
-    <nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-custom">
+    <nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-custom" th:data-role="${role}">
         <div class="container-fluid">
             <div class="ms-auto d-flex align-items-center">
                 <div class="me-3 text-end d-none d-sm-block">
@@ -111,39 +111,43 @@
                     </div>
                 </div>
                 <div class="dropdown me-3" id="notificationDropdown">
-                    <a class="btn btn-white shadow-sm rounded-circle d-flex align-items-center justify-content-center position-relative"
-                        style="width: 45px; height: 45px; border: 1px solid #e2e8f0;" href="#" role="button"
+                    <a class="btn bg-white border d-flex align-items-center justify-content-center position-relative shadow-sm hover-shadow"
+                        style="width: 42px; height: 42px; border-radius: 10px;" href="#" role="button"
                         data-bs-toggle="dropdown" aria-expanded="false" onclick="fetchNotifications()">
-                        <i class="far fa-bell text-muted fs-5"></i>
+                        <i class="far fa-bell text-muted"></i>
                         <span id="notificationBadge"
                             class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none"
-                            style="font-size: 0.6rem; padding: 0.25em 0.5em;">
+                            style="font-size: 0.65rem;">
                             0
                         </span>
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2 p-0 overflow-hidden"
-                        style="border-radius: 12px; width: 320px;">
+                    <ul class="dropdown-menu dropdown-menu-end shadow border mt-2 p-0 overflow-hidden"
+                        style="width: 320px;">
                         <li class="bg-light p-3 border-bottom d-flex justify-content-between align-items-center">
                             <h6 class="fw-bold mb-0">Notifications</h6>
-                            <span class="badge bg-primary rounded-pill small" id="unreadCount">0 New</span>
+                            <span class="badge bg-primary px-2 py-1" id="unreadCount">0 New</span>
                         </li>
                         <div id="notificationList" style="max-height: 400px; overflow-y: auto;">
                             <!-- Notifications will be injected here -->
                             <div class="p-4 text-center text-muted small">Loading notifications...</div>
                         </div>
                         <li class="border-top">
-                            <a th:href="@{/seeker/notifications}"
-                                class="dropdown-item py-3 text-center small text-primary fw-bold">View All
-                                Notifications</a>
+                            <a th:href="${role == 'ROLE_EMPLOYER' ? '/employer/notifications' : '/seeker/notifications'}"
+                                class="dropdown-item py-2 text-center small text-primary fw-bold">View All</a>
                         </li>
                     </ul>
                 </div>
 
                 <div class="dropdown">
-                    <a class="btn btn-white shadow-sm rounded-circle d-flex align-items-center justify-content-center"
-                        style="width: 45px; height: 45px; border: 1px solid #e2e8f0;" href="#" role="button"
+                    <a class="btn bg-white border d-flex align-items-center justify-content-center shadow-sm hover-shadow p-0 overflow-hidden"
+                        style="width: 42px; height: 42px; border-radius: 10px;" href="#" role="button"
                         data-bs-toggle="dropdown">
-                        <i class="fas fa-user-circle text-primary fs-4"></i>
+                        <i class="fas fa-user-circle text-primary fs-5"
+                            th:if="${(role == 'ROLE_EMPLOYER' && (profile == null || profile.logoPath == null)) || (role != 'ROLE_EMPLOYER' && (profile == null || profile.profileImagePath == null))}"></i>
+                        <img th:if="${role == 'ROLE_SEEKER' && profile != null && profile.profileImagePath != null}"
+                            th:src="@{${profile.profileImagePath}}" class="w-100 h-100 object-fit-cover" />
+                        <img th:if="${role == 'ROLE_EMPLOYER' && profile != null && profile.logoPath != null}"
+                            th:src="@{${profile.logoPath}}" class="w-100 h-100 object-fit-cover" />
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2 p-2"
                         style="border-radius: 12px;">
@@ -151,7 +155,8 @@
                                 th:href="${role == 'ROLE_EMPLOYER' ? '/employer/profile' : '/seeker/profile'}">
                                 <i class="fas fa-user me-2 small"></i> My Profile</a>
                         </li>
-                        <li><a class="dropdown-item py-2 rounded-3" th:href="@{/seeker/settings}">
+                        <li><a class="dropdown-item py-2 rounded-3"
+                                th:href="${role == 'ROLE_EMPLOYER' ? '/employer/settings' : '/seeker/settings'}">
                                 <i class="fas fa-cog me-2 small"></i> Settings</a>
                         </li>
                         <li>
@@ -164,71 +169,122 @@
                 </div>
             </div>
         </div>
-    </nav>
+        <script>
+            // Role detection from data attribute
+            const navbar = document.querySelector('.navbar-custom');
+            const userRole = navbar ? navbar.getAttribute('data-role') : 'ROLE_SEEKER';
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Initial count
-            updateNotificationBadge();
-            // Periodic check (every 30 seconds)
-            setInterval(updateNotificationBadge, 30000);
-        });
+            document.addEventListener('DOMContentLoaded', function () {
+                updateNotificationBadge();
+                setInterval(updateNotificationBadge, 30000);
+            });
 
-        async function updateNotificationBadge() {
-            try {
-                const response = await fetch('/api/notifications');
-                const data = await response.json();
-                const unread = data.filter(n => !n.isRead).length;
-                const badge = document.getElementById('notificationBadge');
-                if (unread > 0) {
-                    badge.innerText = unread;
-                    badge.classList.remove('d-none');
-                } else {
-                    badge.classList.add('d-none');
+            async function updateNotificationBadge() {
+                try {
+                    const response = await fetch('/api/notifications/unread-count?t=' + new Date().getTime());
+                    const unread = await response.json();
+                    const badge = document.getElementById('notificationBadge');
+                    if (badge) {
+                        if (unread > 0) {
+                            badge.innerText = unread;
+                            badge.classList.remove('d-none');
+                        } else {
+                            badge.innerText = '0';
+                            badge.classList.add('d-none');
+                        }
+                    }
+                    const unreadDisplay = document.getElementById('unreadCount');
+                    if (unreadDisplay) unreadDisplay.innerText = unread + ' New';
+                } catch (err) {
+                    console.error('Error updating badge:', err);
                 }
-                const unreadDisplay = document.getElementById('unreadCount');
-                if (unreadDisplay) unreadDisplay.innerText = unread + ' New';
-            } catch (err) { }
-        }
+            }
 
-        async function fetchNotifications() {
-            const list = document.getElementById('notificationList');
-            try {
-                const response = await fetch('/api/notifications');
-                const data = await response.json();
+            async function fetchNotifications() {
+                const list = document.getElementById('notificationList');
+                if (!list) return;
+                try {
+                    const response = await fetch('/api/notifications/unread?t=' + new Date().getTime());
+                    const data = await response.json();
 
-                if (data.length === 0) {
-                    list.innerHTML = '<div class="p-4 text-center text-muted small">No notifications yet</div>';
-                    return;
-                }
+                    if (data.length === 0) {
+                        list.innerHTML = '<div class="p-4 text-center text-muted small">No unread notifications</div>';
+                        return;
+                    }
 
-                list.innerHTML = data.map(n => `
-                    <div class="p-3 border-bottom notification-item ${n.isRead ? 'opacity-75' : 'bg-light-primary'}" 
-                         style="cursor: pointer;" onclick="markAsRead(${n.id})">
-                        <div class="d-flex gap-3">
-                            <div class="bg-primary bg-opacity-10 p-2 rounded-circle" style="width: 35px; height: 35px; min-width: 35px; display: flex; align-items: center; justify-content: center;">
-                                <i class="fas ${n.isRead ? 'fa-check text-muted' : 'fa-bell text-primary'} small"></i>
-                            </div>
-                            <div>
-                                <p class="small mb-1 ${n.isRead ? '' : 'fw-bold'}">${n.message}</p>
-                                <span class="very-small text-muted">${new Date(n.createdAt).toLocaleString()}</span>
+                    list.innerHTML = data.map(n => `
+                        <div class="p-3 border-bottom notification-item bg-light position-relative" 
+                             style="cursor: pointer;" onclick="handleNotificationClick(${n.id}, '${n.type}', ${n.referenceId})">
+                            <div class="d-flex gap-2">
+                                <div class="bg-primary bg-opacity-10 p-2 rounded-circle text-primary" style="width: 32px; height: 32px; min-width: 32px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas ${getIconForType(n.type)} small"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <h6 class="small mb-0 fw-bold">${n.title || 'Notification'}</h6>
+                                        <span class="text-muted" style="font-size: 0.7rem;">${formatTime(n.createdAt)}</span>
+                                    </div>
+                                    <p class="small mb-0 text-muted mt-1" style="line-height: 1.2;">${n.message}</p>
+                                </div>
+                                <div class="bg-primary rounded-circle" style="width: 8px; height: 8px; min-width: 8px; margin-top: 6px;"></div>
                             </div>
                         </div>
-                    </div>
-                `).join('');
-            } catch (err) {
-                list.innerHTML = '<div class="p-4 text-center text-danger small">Failed to load</div>';
+                    `).join('');
+                } catch (err) {
+                    console.error('Error fetching notifications:', err);
+                    list.innerHTML = '<div class="p-4 text-center text-danger small">Failed to load</div>';
+                }
             }
-        }
 
-        async function markAsRead(id) {
-            try {
-                await fetch(`/api/notifications/${id}/read`, { method: 'POST' });
-                updateNotificationBadge();
-                fetchNotifications();
-            } catch (err) { }
-        }
-    </script>
+            function getIconForType(type) {
+                switch (type) {
+                    case 'APPLICATION': return 'fa-file-alt';
+                    case 'STATUS_UPDATE': return 'fa-info-circle';
+                    case 'WITHDRAWAL': return 'fa-user-minus';
+                    case 'NOTE': return 'fa-sticky-note';
+                    default: return 'fa-bell';
+                }
+            }
+
+            function formatTime(dateStr) {
+                if (!dateStr) return '';
+                const date = new Date(dateStr);
+                const now = new Date();
+                const diffInSec = Math.floor((now - date) / 1000);
+                if (diffInSec < 60) return 'just now';
+                if (diffInSec < 3600) return Math.floor(diffInSec / 60) + 'm ago';
+                if (diffInSec < 86400) return Math.floor(diffInSec / 3600) + 'h ago';
+                return date.toLocaleDateString();
+            }
+
+            async function handleNotificationClick(id, type, refId) {
+                try {
+                    await fetch(`/api/notifications/${id}/read`, { method: 'POST' });
+                    updateNotificationBadge();
+                    fetchNotifications();
+
+                    let url = '#';
+                    if (userRole === 'ROLE_EMPLOYER') {
+                        if (type === 'APPLICATION' || type === 'WITHDRAWAL') {
+                            url = '/employer/applicants';
+                        } else {
+                            url = '/employer/notifications';
+                        }
+                    } else {
+                        if (type === 'STATUS_UPDATE' || type === 'NOTE') {
+                            url = '/seeker/applications';
+                        } else {
+                            url = '/seeker/notifications';
+                        }
+                    }
+                    window.location.href = url;
+                } catch (err) {
+                    console.error('Error handling notification click:', err);
+                    window.location.href = userRole === 'ROLE_EMPLOYER' ? '/employer/notifications' : '/seeker/notifications';
+                }
+            }
+        </script>
+    </nav>
 </body>
 
 </html>

@@ -2,6 +2,8 @@ package com.rev.app.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "resumes")
@@ -36,6 +38,20 @@ public class Resume {
     @Column(length = 2000)
     private String projects;
 
+    @Column(length = 2000)
+    private String certifications;
+
     @Column(name = "file_path", length = 500)
     private String filePath;
+
+    @Column(name = "file_name", length = 255)
+    private String fileName;
+
+    @Builder.Default
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive = false;
+
+    @CreationTimestamp
+    @Column(name = "uploaded_at", updatable = false)
+    private LocalDateTime uploadedAt;
 }

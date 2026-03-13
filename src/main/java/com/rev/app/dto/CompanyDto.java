@@ -17,4 +17,5 @@ public class CompanyDto {
     private String description;
     private String website;
     private String location;
+    private String logoPath;
 }

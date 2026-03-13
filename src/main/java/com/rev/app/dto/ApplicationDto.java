@@ -21,8 +21,14 @@ public class ApplicationDto {
     private String companyName;
     private String jobSeekerName;
 
+    private JobDto job;
+    private JobSeekerDto jobSeeker;
+    private ResumeDto resume;
+
     private String coverLetter;
     private String status;
     private LocalDateTime appliedDate;
     private String withdrawReason;
+    private String notes;
+    private java.util.List<ApplicationNoteDto> applicationNotes;
 }

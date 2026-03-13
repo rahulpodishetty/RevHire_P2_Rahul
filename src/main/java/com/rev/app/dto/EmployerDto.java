@@ -14,4 +14,8 @@ public class EmployerDto {
     private Long userId;
     private CompanyDto company;
     private String designation;
+
+    public String getLogoPath() {
+        return company != null ? company.getLogoPath() : null;
+    }
 }

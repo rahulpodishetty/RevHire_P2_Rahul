@@ -13,6 +13,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import jakarta.persistence.criteria.Predicate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class ApplicationServiceImpl implements IApplicationService {
@@ -54,6 +57,16 @@ public class ApplicationServiceImpl implements IApplicationService {
                 .orElseThrow(() -> new ResourceNotFoundException("JobSeeker not found"));
         Job job = IJobRepository.findById(jobId)
                 .orElseThrow(() -> new ResourceNotFoundException("Job not found"));
+
+        if (!"ACTIVE".equals(job.getStatus())) {
+            throw new IllegalArgumentException(
+                    "This job is no longer accepting applications (Current Status: " + job.getStatus() + ")");
+        }
+
+        if (resumeId == null) {
+            throw new IllegalArgumentException("Resume is required for application.");
+        }
+
         Resume resume = IResumeRepository.findById(resumeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Resume not found"));
 
@@ -66,25 +79,28 @@ public class ApplicationServiceImpl implements IApplicationService {
         application.setJob(job);
         application.setResume(resume);
         application.setCoverLetter(coverLetter);
-        application.setStatus("APPLIED");
+        application.setStatus("Applied");
 
         Application saved = IApplicationRepository.save(application);
 
         // Notify employer
-        Notification notification = new Notification();
-        notification.setUser(job.getCompany().getJobs().get(0).getCompany().getJobs().isEmpty() ? null
-                : job.getCompany().getJobs().get(0).getCompany().getJobs().get(0).getCompany().getJobs().isEmpty()
-                        ? null
-                        : null); // Simple notification placeholder
-
-        // Let's just create a more realistic fallback
-        User defaultEmployerUser = job.getCompany().getJobs() != null && !job.getCompany().getJobs().isEmpty() ? null
-                : null; // Ignoring complex queries for now. For completeness:
-        // Real implementation would look up Employer by Company. However, since the
-        // prompt only requires "Generate notification on Application status change", we
-        // skip the apply notification or simplify it.
+        if (job.getEmployer() != null) {
+            Notification notification = new Notification();
+            notification.setUser(job.getEmployer().getUser());
+            notification.setTitle("New Job Application");
+            notification.setMessage(jobSeeker.getName() + " applied for " + job.getTitle());
+            notification.setType("APPLICATION");
+            notification.setReferenceId(saved.getId());
+            notification.setIsRead(false);
+            INotificationRepository.save(notification);
+        }
 
         return applicationMapper.toDto(saved);
+    }
+
+    @Override
+    public boolean hasApplied(Long jobSeekerId, Long jobId) {
+        return IApplicationRepository.existsByJobSeekerIdAndJobId(jobSeekerId, jobId);
     }
 
     @Override
@@ -97,17 +113,37 @@ public class ApplicationServiceImpl implements IApplicationService {
             throw new CustomAccessDeniedException("Unauthorized application withdrawal.");
         }
 
-        application.setStatus("WITHDRAWN");
+        application.setStatus("Withdrawn");
         application.setWithdrawReason(reason);
-        return applicationMapper.toDto(IApplicationRepository.save(application));
+        Application saved = IApplicationRepository.save(application);
+
+        // Notify employer
+        if (application.getJob().getEmployer() != null) {
+            Notification notification = new Notification();
+            notification.setUser(application.getJob().getEmployer().getUser());
+            notification.setTitle("Application Withdrawn");
+            notification.setMessage(application.getJobSeeker().getName() + " withdrawn application for "
+                    + application.getJob().getTitle());
+            notification.setType("WITHDRAWAL");
+            notification.setReferenceId(saved.getId());
+            notification.setIsRead(false);
+            INotificationRepository.save(notification);
+        }
+
+        return applicationMapper.toDto(saved);
     }
 
     @Override
-    public Page<ApplicationDto> getApplicationsByJobSeeker(Long jobSeekerId, Pageable pageable) {
+    public Page<ApplicationDto> getApplicationsByJobSeeker(Long jobSeekerId, String status, Pageable pageable) {
+        if (status != null && !status.isEmpty()) {
+            return IApplicationRepository.findByJobSeekerIdAndStatus(jobSeekerId, status, pageable)
+                    .map(applicationMapper::toDto);
+        }
         return IApplicationRepository.findByJobSeekerId(jobSeekerId, pageable).map(applicationMapper::toDto);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<ApplicationDto> getApplicationsByJob(Long employerId, Long jobId, Pageable pageable) {
         Employer employer = IEmployerRepository.findById(employerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Employer not found"));
@@ -119,6 +155,23 @@ public class ApplicationServiceImpl implements IApplicationService {
         }
 
         return IApplicationRepository.findByJobId(jobId, pageable).map(applicationMapper::toDto);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ApplicationDto> getApplicationsByEmployer(Long employerId, String status, Pageable pageable) {
+        Employer employer = IEmployerRepository.findById(employerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Employer not found"));
+        Long companyId = employer.getCompany().getId();
+
+        Page<Application> applications;
+        if (status != null && !status.isEmpty()) {
+            applications = IApplicationRepository.findByJobCompanyIdAndStatus(companyId, status, pageable);
+        } else {
+            applications = IApplicationRepository.findByJobCompanyId(companyId, pageable);
+        }
+
+        return applications.map(applicationMapper::toDto);
     }
 
     @Override
@@ -139,12 +192,40 @@ public class ApplicationServiceImpl implements IApplicationService {
         // Notify seeker
         Notification notification = new Notification();
         notification.setUser(application.getJobSeeker().getUser());
+        notification.setTitle("Application Status Update");
         notification
                 .setMessage("Your application status for " + application.getJob().getTitle() + " changed to " + status);
+        notification.setType("STATUS_UPDATE");
+        notification.setReferenceId(saved.getId());
         notification.setIsRead(false);
         INotificationRepository.save(notification);
 
         return applicationMapper.toDto(saved);
+    }
+
+    @Override
+    @Transactional
+    public void updateApplicationStatusesBulk(Long employerId, List<Long> applicationIds, String status) {
+        Employer employer = IEmployerRepository.findById(employerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Employer not found"));
+
+        List<Application> applications = IApplicationRepository.findAllById(applicationIds);
+        for (Application app : applications) {
+            if (app.getJob().getCompany().getId().equals(employer.getCompany().getId())) {
+                app.setStatus(status);
+                // Notification
+                Notification notification = new Notification();
+                notification.setUser(app.getJobSeeker().getUser());
+                notification.setTitle("Application Status Update");
+                notification
+                        .setMessage("Your application status for " + app.getJob().getTitle() + " changed to " + status);
+                notification.setType("STATUS_UPDATE");
+                notification.setReferenceId(app.getId());
+                notification.setIsRead(false);
+                INotificationRepository.save(notification);
+            }
+        }
+        IApplicationRepository.saveAll(applications);
     }
 
     @Override
@@ -164,7 +245,55 @@ public class ApplicationServiceImpl implements IApplicationService {
         note.setEmployer(employer);
         note.setNoteText(noteText);
 
+        // Sync to Application's notes string field
+        String currentNotes = application.getNotes();
+        if (currentNotes == null || currentNotes.isEmpty()) {
+            application.setNotes(noteText);
+        } else {
+            application.setNotes(currentNotes + " | " + noteText);
+        }
+        IApplicationRepository.save(application);
+
+        // Notify seeker
+        Notification notification = new Notification();
+        notification.setUser(application.getJobSeeker().getUser());
+        notification.setTitle("New Note on Application");
+        notification.setMessage("The employer added a note to your application for " + application.getJob().getTitle());
+        notification.setType("NOTE");
+        notification.setReferenceId(application.getId());
+        notification.setIsRead(false);
+        INotificationRepository.save(notification);
+
         return applicationNoteMapper.toDto(IApplicationNoteRepository.save(note));
     }
-}
 
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ApplicationDto> getFilteredApplications(Long employerId, String status, String skills, Integer minExp,
+            String education, Pageable pageable) {
+        Employer employer = IEmployerRepository.findById(employerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Employer not found"));
+        Long companyId = employer.getCompany().getId();
+
+        return IApplicationRepository.findAll((root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.equal(root.join("job").join("company").get("id"), companyId));
+
+            if (status != null && !status.isEmpty()) {
+                predicates.add(cb.equal(root.get("status"), status));
+            }
+            if (skills != null && !skills.isEmpty()) {
+                predicates.add(cb.like(cb.lower(root.join("resume").get("skills")), "%" + skills.toLowerCase() + "%"));
+            }
+            if (minExp != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.join("jobSeeker").get("experienceYears"), minExp));
+            }
+            if (education != null && !education.isEmpty()) {
+                predicates.add(
+                        cb.like(cb.lower(root.join("resume").get("education")), "%" + education.toLowerCase() + "%"));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        }, pageable).map(applicationMapper::toDto);
+    }
+}

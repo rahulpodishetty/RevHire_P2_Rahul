@@ -32,6 +32,23 @@ public class NotificationServiceImpl implements INotificationService {
     }
 
     @Override
+    public long getUnreadCount(Long userId) {
+        return INotificationRepository.countByUserIdAndIsReadFalse(userId);
+    }
+
+    @Override
+    public List<NotificationDto> getUnreadNotifications(Long userId) {
+        return INotificationRepository.findTop5ByUserIdAndIsReadFalseOrderByCreatedAtDesc(userId)
+                .stream().map(notificationMapper::toDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public org.springframework.data.domain.Page<NotificationDto> getPaginatedNotifications(Long userId,
+            org.springframework.data.domain.Pageable pageable) {
+        return INotificationRepository.findByUserId(userId, pageable).map(notificationMapper::toDto);
+    }
+
+    @Override
     @Transactional
     public void markAsRead(Long notificationId, Long userId) {
         Notification notification = INotificationRepository.findById(notificationId)
@@ -43,4 +60,3 @@ public class NotificationServiceImpl implements INotificationService {
         INotificationRepository.save(notification);
     }
 }
-

@@ -3,11 +3,12 @@ package com.rev.app.config;
 import com.rev.app.security.CustomUserDetailsService;
 import com.rev.app.security.JwtAuthenticationEntryPoint;
 import com.rev.app.security.JwtAuthenticationFilter;
+import jakarta.servlet.http.Cookie;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -15,6 +16,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import java.util.List;
 
 @Configuration
 @EnableMethodSecurity
@@ -33,6 +36,11 @@ public class SecurityConfig {
     }
 
     @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailsService);
@@ -40,37 +48,42 @@ public class SecurityConfig {
         return authProvider;
     }
 
+    /**
+     * Explicitly build AuthenticationManager with our DaoAuthenticationProvider
+     * (which has BCryptPasswordEncoder). Using
+     * AuthenticationConfiguration.getAuthenticationManager()
+     * can resolve to a provider built by Spring autoconfiguration that may NOT use
+     * our explicit PasswordEncoder bean, causing BadCredentialsException on login.
+     */
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
-        return authConfig.getAuthenticationManager();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+    public AuthenticationManager authenticationManager() {
+        return new ProviderManager(List.of(authenticationProvider()));
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable())
+        http.csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            Cookie cookie = new Cookie("jwtToken", "");
+                            cookie.setHttpOnly(true);
+                            cookie.setPath("/");
+                            cookie.setMaxAge(0);
+                            response.addCookie(cookie);
+                            response.sendRedirect("/login?error=access_denied");
+                        }))
                 .authorizeHttpRequests(auth -> auth
-                        // Public resources
-                        .requestMatchers("/", "/index", "/login", "/logout", "/register/**",
+                        .requestMatchers("/", "/index", "/login", "/register/**",
                                 "/css/**", "/js/**", "/images/**",
-                                "/error/**", "/favicon.ico")
+                                "/error/**", "/error", "/favicon.ico",
+                                "/api/auth/**", "/uploads/**")
                         .permitAll()
-                        // Public API endpoints
-                        .requestMatchers("/api/auth/**").permitAll()
-                        // Role-based access for Thymeleaf pages
                         .requestMatchers("/seeker/**").hasRole("SEEKER")
                         .requestMatchers("/employer/**").hasRole("EMPLOYER")
-                        // Role-based access for REST APIs
                         .requestMatchers("/api/seeker/**").hasRole("SEEKER")
                         .requestMatchers("/api/employer/**").hasRole("EMPLOYER")
-                        // Everything else requires authentication
                         .anyRequest().authenticated());
 
         http.authenticationProvider(authenticationProvider());

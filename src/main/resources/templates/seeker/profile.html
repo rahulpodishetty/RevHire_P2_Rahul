@@ -15,13 +15,17 @@
             </div>
         </div>
 
-        <div th:if="${param.updated}"
+        <div th:if="${param.updated != null or param.imageUploaded != null}"
             class="alert alert-success border-0 shadow-sm rounded-4 mb-4 p-3 animate__animated animate__fadeIn">
             <div class="d-flex align-items-center gap-3">
                 <i class="fas fa-check-circle fs-4"></i>
                 <div>
-                    <h6 class="fw-bold mb-0">Profile Updated!</h6>
-                    <p class="small mb-0 opacity-75">Your career profile has been successfully updated.</p>
+                    <h6 class="fw-bold mb-0"
+                        th:text="${param.imageUploaded != null ? 'Photo Updated!' : 'Profile Updated!'}">Profile
+                        Updated!</h6>
+                    <p class="small mb-0 opacity-75"
+                        th:text="${param.imageUploaded != null ? 'Your profile picture has been changed.' : 'Your career profile has been successfully updated.'}">
+                        Your career profile has been successfully updated.</p>
                 </div>
                 <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
             </div>
@@ -32,17 +36,25 @@
                 <div class="card border-0 shadow-sm rounded-4 text-center p-4 mb-4">
                     <div class="card-body">
                         <div class="position-relative d-inline-block mb-4">
-                            <div class="bg-primary-subtle p-4 rounded-circle border border-2 border-white shadow-sm"
-                                style="width: 120px; height: 120px; display: flex; align-items: center; justify-content: center;">
-                                <i class="fas fa-user text-primary fs-1"></i>
+                            <div class="bg-primary-subtle rounded-circle border border-2 border-white shadow-sm overflow-hidden"
+                                style="width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; padding: 0 !important;">
+                                <i class="fas fa-user text-primary fs-1"
+                                    th:if="${profile.profileImagePath == null}"></i>
+                                <img th:src="@{${profile.profileImagePath}}" th:if="${profile.profileImagePath != null}"
+                                    class="w-100 h-100" style="object-fit: cover; display: block;" />
                             </div>
-                            <button
+                            <form id="profilePhotoForm" th:action="@{/seeker/profile/upload-photo}" method="post"
+                                enctype="multipart/form-data" class="d-none">
+                                <input type="file" id="photoInput" name="file" accept="image/*"
+                                    onchange="document.getElementById('profilePhotoForm').submit();">
+                            </form>
+                            <button onclick="document.getElementById('photoInput').click();"
                                 class="btn btn-primary btn-sm rounded-circle position-absolute bottom-0 end-0 shadow-sm p-2"
                                 style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;"><i
                                     class="fas fa-camera small"></i></button>
                         </div>
                         <h5 class="fw-bold mb-1" th:text="${profile.name}">Johnathan Doe</h5>
-                        <p class="small text-muted mb-4" th:text="${profile.user.email}">j.doe@example.com</p>
+                        <p class="small text-muted mb-4" th:text="${profile.email}">j.doe@example.com</p>
                         <div class="d-flex justify-content-center gap-2 mb-4">
                             <span class="badge bg-light text-primary px-3 py-2 rounded-pill fw-bold border"
                                 th:text="${profile.currentEmploymentStatus ?: 'Job Seeker'}">Job Seeker</span>

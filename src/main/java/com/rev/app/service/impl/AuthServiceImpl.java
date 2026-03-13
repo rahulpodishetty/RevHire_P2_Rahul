@@ -9,7 +9,6 @@ import com.rev.app.entity.Company;
 import com.rev.app.entity.Employer;
 import com.rev.app.entity.JobSeeker;
 import com.rev.app.entity.User;
-import com.rev.app.exception.ResourceNotFoundException;
 import com.rev.app.mapper.UserMapper;
 import com.rev.app.repository.ICompanyRepository;
 import com.rev.app.repository.IEmployerRepository;
@@ -26,13 +25,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 @Service
 public class AuthServiceImpl implements IAuthService {
-
-    private static final Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
 
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
@@ -60,44 +54,47 @@ public class AuthServiceImpl implements IAuthService {
     @Override
     @Transactional
     public UserDto registerJobSeeker(RegisterJobSeekerDto dto) {
-        if (IUserRepository.existsByEmail(dto.getEmail())) {
+        if (IUserRepository.existsByEmail(dto.getEmail().toLowerCase())) {
             throw new IllegalArgumentException("Error: Email is already in use!");
         }
 
         User user = new User();
-        user.setEmail(dto.getEmail());
+        user.setEmail(dto.getEmail().toLowerCase());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
-        user.setRole("ROLE_JOB_SEEKER");
-        // No manual id setting - handled by Oracle IDENTITY
+        user.setRole("ROLE_SEEKER");
         User savedUser = IUserRepository.save(user);
+        System.out.println("DEBUG [AuthService]: User saved with ID: " + savedUser.getId());
 
         JobSeeker jobSeeker = new JobSeeker();
         jobSeeker.setUser(savedUser);
         jobSeeker.setName(dto.getName());
         jobSeeker.setPhone(dto.getPhone());
         jobSeeker.setExperienceYears(dto.getExperienceYears());
+        jobSeeker.setLocation(dto.getLocation());
+        jobSeeker.setCurrentEmploymentStatus(dto.getCurrentEmploymentStatus());
         jobSeeker.setProfileCompletion(0);
         IJobSeekerRepository.save(jobSeeker);
 
+        System.out.println("DEBUG [AuthService]: JobSeeker registration complete for Email: " + savedUser.getEmail());
         return userMapper.toDto(savedUser);
     }
 
     @Override
     @Transactional
     public UserDto registerEmployer(RegisterEmployerDto dto) {
-        if (IUserRepository.existsByEmail(dto.getEmail())) {
+        if (IUserRepository.existsByEmail(dto.getEmail().toLowerCase())) {
             throw new IllegalArgumentException("Error: Email is already in use!");
         }
 
-        // 1. Save User first to generate IDENTITY ID
+        // 1. Save User first
         User user = new User();
-        user.setEmail(dto.getEmail());
+        user.setEmail(dto.getEmail().toLowerCase());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setRole("ROLE_EMPLOYER");
         User savedUser = IUserRepository.save(user);
+        System.out.println("DEBUG [AuthService]: User saved with ID: " + savedUser.getId());
 
-        // 2. Save Company (uses SEQUENCE as requested previously or IDENTITY if
-        // changed)
+        // 2. Save Company
         Company company = new Company();
         company.setName(dto.getCompanyName());
         company.setIndustry(dto.getIndustry());
@@ -107,20 +104,23 @@ public class AuthServiceImpl implements IAuthService {
         company.setLocation(dto.getLocation());
         Company savedCompany = ICompanyRepository.save(company);
 
-        // 3. Save Employer using saved User and Company
+        // 3. Save Employer
         Employer employer = new Employer();
         employer.setUser(savedUser);
         employer.setCompany(savedCompany);
         employer.setDesignation(dto.getDesignation());
         IEmployerRepository.save(employer);
 
+        System.out.println("DEBUG [AuthService]: Employer registration complete for Email: " + savedUser.getEmail());
         return userMapper.toDto(savedUser);
     }
 
     @Override
     public JwtResponseDto login(LoginDto dto) {
+        // Normalise the email to lowercase — passwords are stored against lowercase
+        // emails
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword()));
+                new UsernamePasswordAuthenticationToken(dto.getEmail().toLowerCase().trim(), dto.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtTokenProvider.generateJwtToken(authentication);
@@ -128,7 +128,7 @@ public class AuthServiceImpl implements IAuthService {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         String role = userDetails.getAuthorities().iterator().next().getAuthority();
 
-        logger.info("User {} successfully logged in.", userDetails.getUsername());
+        System.out.println("DEBUG: User " + userDetails.getUsername() + " successfully logged in. Role: " + role);
         return new JwtResponseDto(jwt, "Bearer", userDetails.getId(),
                 userDetails.getUsername(), role);
     }

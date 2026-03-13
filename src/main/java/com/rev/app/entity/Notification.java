@@ -24,9 +24,19 @@ public class Notification {
     @ToString.Exclude
     private User user;
 
+    @Column(nullable = false, length = 100)
+    private String title;
+
     @Column(nullable = false, length = 1000)
     private String message;
 
+    @Column(length = 50)
+    private String type; // APPLICATION, STATUS_UPDATE, etc.
+
+    @Column(name = "reference_id")
+    private Long referenceId; // Link to job_id or application_id
+
+    @Builder.Default
     @Column(name = "is_read", nullable = false)
     private Boolean isRead = false;
 

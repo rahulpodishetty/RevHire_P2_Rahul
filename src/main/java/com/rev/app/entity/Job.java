@@ -2,6 +2,9 @@ package com.rev.app.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -14,6 +17,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@SQLDelete(sql = "UPDATE jobs SET is_deleted = 1 WHERE job_id = ?")
+@Where(clause = "is_deleted = 0")
 public class Job {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,6 +29,12 @@ public class Job {
     @JoinColumn(name = "company_id", nullable = false)
     @ToString.Exclude
     private Company company;
+
+    /** The employer who posted this job. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "employer_id")
+    @ToString.Exclude
+    private Employer employer;
 
     @Column(nullable = false, length = 150)
     private String title;
@@ -52,10 +63,28 @@ public class Job {
     @Column(nullable = false)
     private LocalDate deadline;
 
+    @Builder.Default
+    @Column(name = "openings")
+    private Integer openings = 1;
+
+    @Builder.Default
+    @Column(name = "STATUS", nullable = false, length = 30)
+    private String status = "ACTIVE";
+
+    @Builder.Default
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isDeleted = false;
+
+    @CreationTimestamp
+    @Column(name = "posted_date", updatable = false)
+    private LocalDate postedDate;
+
+    @Builder.Default
     @OneToMany(mappedBy = "job", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
     private List<Application> applications = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "job", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
     private List<SavedJob> savedJobs = new ArrayList<>();

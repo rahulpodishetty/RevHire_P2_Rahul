@@ -10,4 +10,8 @@ public interface IJobSeekerService {
     JobSeekerDto updateProfile(Long userId, JobSeekerDto dto);
 
     Map<String, Object> getDashboardStats(Long jobSeekerId);
+
+    int calculateProfileStrength(Long seekerId);
+
+    void uploadProfileImage(Long seekerId, org.springframework.web.multipart.MultipartFile file);
 }

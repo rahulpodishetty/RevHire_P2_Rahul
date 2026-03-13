@@ -33,17 +33,44 @@ public class JobSeeker {
     @Column(name = "experience_years")
     private Integer experienceYears;
 
+    @Column(name = "location", length = 150)
+    private String location;
+
+    @Column(name = "current_employment_status", length = 50)
+    private String currentEmploymentStatus;
+
+    @Column(name = "education", length = 2000)
+    private String education;
+
+    @Column(name = "work_experience", length = 4000)
+    private String workExperience;
+
+    @Column(name = "skills", length = 2000)
+    private String skills;
+
+    @Column(name = "certifications", length = 2000)
+    private String certifications;
+
+    @Column(name = "projects", length = 4000)
+    private String projects;
+
     @Column(name = "profile_completion")
     private Integer profileCompletion;
 
+    @Column(name = "profile_image_path", length = 255)
+    private String profileImagePath;
+
+    @Builder.Default
     @OneToMany(mappedBy = "jobSeeker", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
     private List<Resume> resumes = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "jobSeeker", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
     private List<Application> applications = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "jobSeeker", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
     private List<SavedJob> savedJobs = new ArrayList<>();

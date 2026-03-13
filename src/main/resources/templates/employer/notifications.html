@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: header('Notifications - RevHire')}"></head>
+
+<body>
+    <div th:replace="~{fragments/layout :: sidebar('notifications', ${role})}"></div>
+    <div th:replace="~{fragments/layout :: navbar}"></div>
+
+    <main class="main-content">
+        <div class="row mb-5">
+            <div class="col-lg-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2 class="fw-bold mb-1">Your Notifications</h2>
+                        <p class="text-muted">Stay updated with your job applications and recommendations.</p>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                    <div class="card-body p-0">
+                        <div id="fullNotificationList" class="list-group list-group-flush">
+                            <!-- JS will load these -->
+                            <div class="p-5 text-center text-muted">
+                                <div class="spinner-border text-primary mb-3" role="status"></div>
+                                <p>Checking for notifications...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="paginationContainer" class="d-flex justify-content-center gap-2 mb-5">
+                    <!-- Pagination buttons -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentPage = 0;
+        const pageSize = 10;
+
+        document.addEventListener('DOMContentLoaded', () => fetchFullNotifications(0));
+
+        async function fetchFullNotifications(page) {
+            currentPage = page;
+            const list = document.getElementById('fullNotificationList');
+            const pagination = document.getElementById('paginationContainer');
+
+            try {
+                const response = await fetch(`/api/notifications/paginated?page=${page}&size=${pageSize}`);
+                const data = await response.json();
+
+                if (data.empty) {
+                    list.innerHTML = `
+                        <div class="p-5 text-center py-5">
+                            <i class="fas fa-bell-slash text-muted opacity-25 mb-3" style="font-size: 3rem;"></i>
+                            <h5 class="fw-bold">No notifications found</h5>
+                            <p class="text-muted">You'll see updates here when candidates apply for your jobs.</p>
+                            <a href="/employer/jobs/post" class="btn btn-primary rounded-pill px-4 mt-2">Post a New Job</a>
+                        </div>
+                    `;
+                    pagination.innerHTML = '';
+                    return;
+                }
+
+                list.innerHTML = data.content.map(function (n) {
+                    var borderClass = n.isRead ? 'border-light' : 'border-primary bg-light';
+                    var icon = getIcon(n.type);
+                    var statusAction = !n.isRead ?
+                        '<button onclick="markAsReadAndRefresh(' + n.id + ')" class="btn btn-primary btn-sm rounded-pill px-3">Mark as read</button>' :
+                        '<span class="badge bg-light text-muted fw-normal px-3 py-2 border">Read</span>';
+
+                    return `
+                        <div class="list-group-item p-4 border-start border-4 ${borderClass}">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                                <div class="d-flex gap-4">
+                                    <div class="bg-primary bg-opacity-10 p-3 rounded-4 align-self-start text-primary">
+                                        <i class="fas ${icon} fs-4"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold mb-1">${n.title || 'Notification'}</h6>
+                                        <p class="text-muted mb-2">${n.message}</p>
+                                        <span class="small text-muted opacity-75"><i class="far fa-clock me-1"></i> ${new Date(n.createdAt).toLocaleString()}</span>
+                                    </div>
+                                </div>
+                                <div class="ms-auto">
+                                    ${statusAction}
+                                </div>
+                            </div>
+                        </div>`;
+                }).join('');
+
+                // Render pagination
+                let html = '';
+                if (data.totalPages > 1) {
+                    for (let i = 0; i < data.totalPages; i++) {
+                        html += `<button onclick="fetchFullNotifications(${i})" class="btn ${i === page ? 'btn-primary' : 'btn-outline-primary'} btn-sm rounded-circle" style="width: 32px; height: 32px; padding: 0;">${i + 1}</button>`;
+                    }
+                }
+                pagination.innerHTML = html;
+
+            } catch (err) {
+                list.innerHTML = '<div class="p-5 text-center text-danger">Failed to load notifications. Please try again later.</div>';
+            }
+        }
+
+        function getIcon(type) {
+            switch (type) {
+                case 'APPLICATION': return 'fa-file-alt';
+                case 'STATUS_UPDATE': return 'fa-info-circle';
+                case 'WITHDRAWAL': return 'fa-user-minus';
+                case 'NOTE': return 'fa-sticky-note';
+                default: return 'fa-bell';
+            }
+        }
+
+        async function markAsReadAndRefresh(id) {
+            try {
+                await fetch('/api/notifications/' + id + '/read', { method: 'POST' });
+                if (typeof updateNotificationBadge === 'function') updateNotificationBadge();
+                fetchFullNotifications(currentPage);
+            } catch (err) { }
+        }
+    </script>
+</body>
+
+</html>

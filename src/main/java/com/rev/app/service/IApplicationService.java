@@ -8,14 +8,22 @@ import org.springframework.data.domain.Pageable;
 public interface IApplicationService {
     ApplicationDto applyToJob(Long jobSeekerId, Long jobId, Long resumeId, String coverLetter);
 
+    boolean hasApplied(Long jobSeekerId, Long jobId);
+
     ApplicationDto withdrawApplication(Long jobSeekerId, Long applicationId, String reason);
 
-    Page<ApplicationDto> getApplicationsByJobSeeker(Long jobSeekerId, Pageable pageable);
+    Page<ApplicationDto> getApplicationsByJobSeeker(Long jobSeekerId, String status, Pageable pageable);
 
     Page<ApplicationDto> getApplicationsByJob(Long employerId, Long jobId, Pageable pageable);
 
+    Page<ApplicationDto> getApplicationsByEmployer(Long employerId, String status, Pageable pageable);
+
     ApplicationDto updateApplicationStatus(Long employerId, Long applicationId, String status);
 
-    ApplicationNoteDto addNoteToApplication(Long employerId, Long applicationId, String noteText);
-}
+    void updateApplicationStatusesBulk(Long employerId, java.util.List<Long> applicationIds, String status);
 
+    ApplicationNoteDto addNoteToApplication(Long employerId, Long applicationId, String noteText);
+
+    Page<ApplicationDto> getFilteredApplications(Long employerId, String status, String skills, Integer minExp,
+            String education, Pageable pageable);
+}

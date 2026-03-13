@@ -28,12 +28,19 @@ public class User {
     private String password;
 
     @Column(nullable = false, length = 50)
-    private String role; // ROLE_JOB_SEEKER, ROLE_EMPLOYER
+    private String role; // ROLE_SEEKER, ROLE_EMPLOYER
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private JobSeeker jobSeeker;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Employer employer;
+
+    @Builder.Default
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
     private List<Notification> notifications = new ArrayList<>();

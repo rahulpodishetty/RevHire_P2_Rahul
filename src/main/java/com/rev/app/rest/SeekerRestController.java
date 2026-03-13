@@ -50,19 +50,19 @@ public class SeekerRestController {
 
     @PostMapping("/apply")
     public ResponseEntity<ApplicationDto> applyForJob(@AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestParam Long jobId,
-            @RequestParam Long resumeId,
-            @RequestParam(required = false) String coverLetter) {
+            @RequestParam(name = "jobId") Long jobId,
+            @RequestParam(name = "resumeId") Long resumeId,
+            @RequestParam(name = "coverLetter", required = false) String coverLetter) {
         JobSeekerDto profile = IJobSeekerService.getProfileByUserId(userDetails.getId());
         return ResponseEntity.ok(IApplicationService.applyToJob(profile.getId(), jobId, resumeId, coverLetter));
     }
 
     @GetMapping("/applications")
     public ResponseEntity<Page<ApplicationDto>> getApplications(@AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(name = "page", defaultValue = "0") Integer page,
+            @RequestParam(name = "size", defaultValue = "10") Integer size) {
         JobSeekerDto profile = IJobSeekerService.getProfileByUserId(userDetails.getId());
         return ResponseEntity
-                .ok(IApplicationService.getApplicationsByJobSeeker(profile.getId(), PageRequest.of(page, size)));
+                .ok(IApplicationService.getApplicationsByJobSeeker(profile.getId(), null, PageRequest.of(page, size)));
     }
 }

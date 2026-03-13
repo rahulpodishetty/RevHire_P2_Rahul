@@ -13,5 +13,11 @@ public interface ISavedJobRepository extends JpaRepository<SavedJob, Long> {
     boolean existsByJobSeekerIdAndJobId(Long jobSeekerId, Long jobId);
 
     void deleteByJobSeekerIdAndJobId(Long jobSeekerId, Long jobId);
-}
 
+    long countByJobSeekerId(Long jobSeekerId);
+
+    @org.springframework.data.jpa.repository.Modifying
+    @org.springframework.transaction.annotation.Transactional
+    @org.springframework.data.jpa.repository.Query("DELETE FROM SavedJob s WHERE s.job.id = :jobId")
+    void deleteByJobId(@org.springframework.data.repository.query.Param("jobId") Long jobId);
+}

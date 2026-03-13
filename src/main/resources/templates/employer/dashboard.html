@@ -22,46 +22,46 @@
 
             <div class="row g-4 mb-5">
                 <div class="col-md-4">
-                    <a th:href="@{/employer/jobs(status='ACTIVE')}" class="text-decoration-none">
-                        <div class="card stats-card h-100 overflow-hidden" style="border-right: 4px solid #6366f1;">
-                            <div class="card-body">
+                    <a th:href="@{/employer/jobs(status='ACTIVE')}" class="text-decoration-none h-100 d-block">
+                        <div class="card h-100 border-start border-4 border-primary">
+                            <div class="card-body p-4">
                                 <div class="d-flex align-items-center mb-3">
-                                    <div class="bg-primary bg-opacity-10 p-3 rounded-3 me-3">
-                                        <i class="fas fa-briefcase text-primary fs-4"></i>
+                                    <div class="bg-primary bg-opacity-10 p-2 rounded-3 me-3 text-primary">
+                                        <i class="fas fa-briefcase fs-5"></i>
                                     </div>
                                     <h6 class="text-muted text-uppercase small fw-bold mb-0">Active Jobs</h6>
                                 </div>
-                                <h2 class="fw-bold mb-0" th:text="${activeJobs}">0</h2>
+                                <h2 class="fw-bold mb-0 text-dark" th:text="${activeJobs}">0</h2>
                             </div>
                         </div>
                     </a>
                 </div>
                 <div class="col-md-4">
-                    <a th:href="@{/employer/applicants}" class="text-decoration-none">
-                        <div class="card stats-card h-100 overflow-hidden" style="border-right: 4px solid #10b981;">
-                            <div class="card-body">
+                    <a th:href="@{/employer/applicants}" class="text-decoration-none h-100 d-block">
+                        <div class="card h-100 border-start border-4 border-success">
+                            <div class="card-body p-4">
                                 <div class="d-flex align-items-center mb-3">
-                                    <div class="bg-success bg-opacity-10 p-3 rounded-3 me-3">
-                                        <i class="fas fa-users text-success fs-4"></i>
+                                    <div class="bg-success bg-opacity-10 p-2 rounded-3 me-3 text-success">
+                                        <i class="fas fa-users fs-5"></i>
                                     </div>
                                     <h6 class="text-muted text-uppercase small fw-bold mb-0">Total Applicants</h6>
                                 </div>
-                                <h2 class="fw-bold mb-0" th:text="${totalApplicants}">0</h2>
+                                <h2 class="fw-bold mb-0 text-dark" th:text="${totalApplicants}">0</h2>
                             </div>
                         </div>
                     </a>
                 </div>
                 <div class="col-md-4">
-                    <a th:href="@{/employer/applicants(status='APPLIED')}" class="text-decoration-none">
-                        <div class="card stats-card h-100 overflow-hidden" style="border-right: 4px solid #f59e0b;">
-                            <div class="card-body">
+                    <a th:href="@{/employer/applicants(status='Applied')}" class="text-decoration-none h-100 d-block">
+                        <div class="card h-100 border-start border-4 border-warning">
+                            <div class="card-body p-4">
                                 <div class="d-flex align-items-center mb-3">
-                                    <div class="bg-warning bg-opacity-10 p-3 rounded-3 me-3">
-                                        <i class="fas fa-clock text-warning fs-4"></i>
+                                    <div class="bg-warning bg-opacity-10 p-2 rounded-3 me-3 text-warning">
+                                        <i class="fas fa-clock fs-5"></i>
                                     </div>
                                     <h6 class="text-muted text-uppercase small fw-bold mb-0">Pending Reviews</h6>
                                 </div>
-                                <h2 class="fw-bold mb-0" th:text="${pendingReviews}">0</h2>
+                                <h2 class="fw-bold mb-0 text-dark" th:text="${pendingReviews}">0</h2>
                             </div>
                         </div>
                     </a>
